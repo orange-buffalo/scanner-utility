@@ -1,4 +1,4 @@
-let log = require('electron-log');
+import log from 'electron-log'
 
 let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
   let elementsStack = [rawCapabilities];
@@ -125,4 +125,4 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
   };
 };
 
-module.exports = CapabilitiesReader;
+export default CapabilitiesReader;
