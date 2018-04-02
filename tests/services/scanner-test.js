@@ -8,7 +8,7 @@ import moxios from 'moxios'
 let sandbox = sinon.createSandbox()
 
 describe('scanner', () => {
-  let scanner
+  let scanners
   let bonjour
 
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('scanner', () => {
     }
     let bonjourModule = sandbox.stub().returns(bonjour)
 
-    scanner = proxyquire('../../src/renderer/services/scanner.js', {
+    scanners = proxyquire('../../src/renderer/services/scanner.js', {
       'bonjour': bonjourModule,
     }).default
 
@@ -30,7 +30,7 @@ describe('scanner', () => {
   })
 
   it('should start autoconfig with proper config', done => {
-    scanner.startSearching()
+    scanners.startSearching()
 
     assert(bonjour.find.calledWithMatch({type: 'uscan'}), 'autoconfig is not called properly')
 
@@ -48,8 +48,11 @@ describe('scanner', () => {
     expect(actualScanner).to.deep.include({
       name: 'Canon TS9000 series',
       address: 'ip-address',
-      status: scanner.Status.PENDING
+      status: scanners.Status.PENDING
     })
+
+    assert(actualScanner.id,  'ID must be assigned to a scanner')
+    expect(actualScanner).to.be.equal(scanners.getById(actualScanner.id))
 
     done()
   })
@@ -68,7 +71,7 @@ describe('scanner', () => {
         assert(actualScanner, 'scanner-update event should be emitted with an updated scanner')
 
         expect(actualScanner).to.deep.include({
-          status: scanner.Status.FAILED
+          status: scanners.Status.FAILED
         })
 
         done()
@@ -97,7 +100,7 @@ describe('scanner', () => {
             assert(actualScanner, 'scanner-update event should be emitted with an updated scanner')
 
             expect(actualScanner).to.nested.include({
-              'status': scanner.Status.READY,
+              'status': scanners.Status.READY,
               'capabilities.maxWidth': '2550',
               'capabilities.maxHeight': '3508',
               'capabilities.colorModes[0].name': 'Grayscale8',
@@ -120,7 +123,7 @@ describe('scanner', () => {
   })
 
   function _initScanner() {
-    scanner.startSearching()
+    scanners.startSearching()
 
     assert(bonjour.find.calledOnce, 'autoconfig is not called')
 

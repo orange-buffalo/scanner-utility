@@ -11,10 +11,16 @@ let Status = {
   READY: 3
 }
 
+let scannerNextId = 42
+let scanners = []
+
 let Scanner = function (name, address, host, port) {
   this.name = name
   this.address = address
   this.status = Status.PENDING
+  this.id = scannerNextId.toString()
+  scannerNextId++
+  scanners[this.id] = this
 
   let $http = axios.create({
     baseURL: 'http://' + host + ':' + port + '/eSCL',
@@ -114,7 +120,12 @@ function startSearching() {
   }
 }
 
+function getById(id) {
+  return scanners[id]
+}
+
 export default {
   startSearching: startSearching,
-  Status: Status
+  Status: Status,
+  getById: getById
 }
