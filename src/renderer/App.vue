@@ -1,12 +1,11 @@
 <template>
-  <Layout>
-    <Content class="app-content">
-      <router-view></router-view>
-    </Content>
-    <Footer class="app-footer">
+  <div class="app-content">
+    <router-view></router-view>
+
+    <div class="app-footer">
       <span>&copy; 2018</span>
-    </Footer>
-  </Layout>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -15,22 +14,25 @@
   }
 </script>
 
-<style lang="less">
-  /*@import '../../node_modules/reset-css/reset';*/
-  @import './iview';
-  @import './main';
-
+<style lang="scss">
   .app-content {
-    height: 100vh;
     box-sizing: border-box;
-    padding-bottom: 69px;
     overflow-x: hidden;
     overflow-y: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    bottom: 70px;
   }
 
   .app-footer {
     position: fixed;
     left: 0;
     bottom: 0;
+    height: 70px;
+    padding: 15px;
+    width: 100%;
+    box-sizing: border-box;
   }
 </style>

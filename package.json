@@ -55,10 +55,13 @@
     "axios": "^0.18.0",
     "bonjour": "^3.5.0",
     "electron-log": "^2.2.14",
-    "iview": "^2.11.0",
+    "gridlex": "^2.7.1",
     "reset-css": "^3.0.0",
+    "typeface-khula": "0.0.54",
     "vue": "^2.5.16",
+    "vue-awesome": "^2.3.5",
     "vue-router": "^2.8.1",
+    "vue2-transitions": "^0.2.3",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
