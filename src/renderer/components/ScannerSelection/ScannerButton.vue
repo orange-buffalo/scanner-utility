@@ -1,7 +1,7 @@
 <template>
   <div class="grid-noGutter-noBottom scanner-button"
        :class="classObject"
-       @click="testclick">
+       @click="navigateToScanner">
     <div class="col">
       <span class="name">{{scanner.name}}</span><br/>
       <span class="address">at {{scanner.address}}</span>
@@ -23,18 +23,10 @@
       scanner: {}
     },
     methods: {
-      testclick: function () {
-
-        if (this.scanner.status == scanners.Status.PENDING)
-          this.scanner.status = scanners.Status.READY
-        else if (this.scanner.status == scanners.Status.READY)
-          this.scanner.status = scanners.Status.FAILED
-        else if (this.scanner.status == scanners.Status.FAILED)
-          this.scanner.status = scanners.Status.PENDING
-
-        events.emit('scanner-update', this.scanner)
-
-
+      navigateToScanner: function () {
+        if (this.scanner.status == scanners.Status.READY) {
+          this.$router.push({name: 'scanner', params: {scannerId: this.scanner.id}})
+        }
       }
     },
 

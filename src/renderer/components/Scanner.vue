@@ -1,41 +1,42 @@
 <template>
-  <slide-y-up-transition>
-    <div class="content grid-3-middle-center">
-      <div class="col">
-        <fade-transition group tag="div">
-          <scanner-button v-for="scanner in scanners"
-                          :key="scanner.id"
-                          :scanner="scanner"/>
-        </fade-transition>
-      </div>
+  <slide-y-down-transition  >
+  <div class="content grid-3-middle-center">
+    <div class="col" @click="back">
+      privet
     </div>
-  </slide-y-up-transition>
+  </div>
+  </slide-y-down-transition>
 </template>
 
 <script>
   import scanner from "../services/scanner"
   import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
-  import {FadeTransition, SlideYUpTransition} from 'vue2-transitions'
+  import { SlideYDownTransition } from 'vue2-transitions'
+
 
   let testcounter = 1
 
   export default {
     name: 'scanner-selection',
-    components: {ScannerButton, FadeTransition, SlideYUpTransition},
+    components: {ScannerButton, SlideYDownTransition},
     data: function () {
       return {
         scanners: []
       }
     },
-    methods: {},
+    methods: {
+      back: function () {
+        this.$router.push("/")
+
+      }
+    },
     created: function () {
       setTimeout(() => {
         events.emit('new-scanner', {
         name: 'Cannon TS9080 Series - Pending',
         address: '192.168.1.1',
-        status: scanner.Status.PENDING,
-          id:"1"
+        status: scanner.Status.PENDING
       })
       }, 2000)
 
@@ -43,8 +44,7 @@
         events.emit('new-scanner', {
         name: 'Cannon TS9080 Series - Ready',
         address: '192.168.1.1',
-        status: scanner.Status.READY,
-          id:"2"
+        status: scanner.Status.READY
       })
       }, 5000)
 
@@ -52,8 +52,7 @@
         events.emit('new-scanner', {
         name: 'Cannon TS9080 Series - Failed',
         address: '192.168.1.1',
-        status: scanner.Status.FAILED ,
-          id:"3"
+        status: scanner.Status.FAILED
       })
       }, 10000)
 
@@ -83,29 +82,25 @@
       events.emit('new-scanner', {
         name: 'Cannon TS9080 Series',
         address: '192.168.1.1',
-        status: scanner.Status.PENDING ,
-          id:"4"
+        status: scanner.Status.PENDING
       })
 
       events.emit('new-scanner', {
         name: 'Cannon PIXMA MG7550 Series',
         address: '192.168.1.170',
-        status: scanner.Status.READY,
-          id:"5"
+        status: scanner.Status.READY
       })
 
       events.emit('new-scanner', {
         name: 'HP Test Connection Scanner New Generation',
         address: '192.168.45.170',
-        status: scanner.Status.FAILED,
-          id:"6"
+        status: scanner.Status.FAILED
       })
 
       events.emit('new-scanner', {
         name: 'Cannon TS6000 Series',
         address: 'companthost',
-        status: scanner.Status.PENDING ,
-          id:"7"
+        status: scanner.Status.PENDING
       })
     }
 

@@ -11,6 +11,11 @@ export default new Router({
       component: require('@/components/ScannerSelection').default
     },
     {
+      path: '/scanner/:scannerId',
+      name: 'scanner',
+      component: require('@/components/Scanner').default
+    },
+    {
       path: '*',
       redirect: '/'
     }
