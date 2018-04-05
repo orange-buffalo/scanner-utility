@@ -1,10 +1,22 @@
 <template>
-  <slide-y-down-transition  >
-  <div class="content grid-3-middle-center">
-    <div class="col" @click="back">
-      privet
+  <slide-y-down-transition>
+    <div class="wrapper">
+      <div class="header">
+        header
+      </div>
+
+      <div class="page-preview"
+           :class="pagePreviewClassObject"
+           @click="back">
+
+        page
+
+      </div>
+
+      <div class="carousel"
+           :class="carouselClassObject">dsf</div>
     </div>
-  </div>
+
   </slide-y-down-transition>
 </template>
 
@@ -12,7 +24,7 @@
   import scanner from "../services/scanner"
   import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
-  import { SlideYDownTransition } from 'vue2-transitions'
+  import {SlideYDownTransition} from 'vue2-transitions'
 
 
   let testcounter = 1
@@ -22,95 +34,82 @@
     components: {ScannerButton, SlideYDownTransition},
     data: function () {
       return {
-        scanners: []
+        carouselVisible: false
       }
     },
     methods: {
       back: function () {
-        this.$router.push("/")
+        // this.$router.push("/")
+        this.carouselVisible = !this.carouselVisible
 
       }
     },
     created: function () {
-      setTimeout(() => {
-        events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series - Pending',
-        address: '192.168.1.1',
-        status: scanner.Status.PENDING
-      })
-      }, 2000)
 
-      setTimeout(() => {
-        events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series - Ready',
-        address: '192.168.1.1',
-        status: scanner.Status.READY
-      })
-      }, 5000)
+    },
+    computed: {
+      pagePreviewClassObject: function () {
+        return {
+          "with-carousel": this.carouselVisible
+        }
 
-      setTimeout(() => {
-        events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series - Failed',
-        address: '192.168.1.1',
-        status: scanner.Status.FAILED
-      })
-      }, 10000)
+      },
 
+      carouselClassObject: function () {
+        return {
+          "visible": this.carouselVisible
+        }
 
-
-      events.on('new-scanner', s => {
-        this.scanners.push(s)
-        this.scanners.sort((a, b) => {
-          let orders = []
-          orders[scanner.Status.READY] = 1
-          orders[scanner.Status.PENDING] = 2
-          orders[scanner.Status.FAILED] = 3
-          return orders[a.status] - orders[b.status]
-        })
-      })
-      events.on('scanner-update', s => {
-        this.scanners.sort((a, b) => {
-          let orders = []
-          orders[scanner.Status.READY] = 1
-          orders[scanner.Status.PENDING] = 2
-          orders[scanner.Status.FAILED] = 3
-          return orders[a.status] - orders[b.status]
-        })
-      })
-
-      // scanner.startSearching()
-      events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series',
-        address: '192.168.1.1',
-        status: scanner.Status.PENDING
-      })
-
-      events.emit('new-scanner', {
-        name: 'Cannon PIXMA MG7550 Series',
-        address: '192.168.1.170',
-        status: scanner.Status.READY
-      })
-
-      events.emit('new-scanner', {
-        name: 'HP Test Connection Scanner New Generation',
-        address: '192.168.45.170',
-        status: scanner.Status.FAILED
-      })
-
-      events.emit('new-scanner', {
-        name: 'Cannon TS6000 Series',
-        address: 'companthost',
-        status: scanner.Status.PENDING
-      })
+      }
     }
 
   }
 </script>
 
 <style lang="scss" scoped>
-  .content {
-    min-height: 100%;
-    overflow-y: auto;
-    padding-top: 30px;
+  $carousel-height: 200px;
+
+  .wrapper {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
   }
+
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 70px;
+    right: 0;
+  }
+
+  .page-preview {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #F5F7F7;
+    transition: all 0.3s;
+
+    &.with-carousel {
+      bottom: $carousel-height;
+    }
+  }
+
+  .carousel {
+    position: absolute;
+    bottom: -$carousel-height;
+    left: 0;
+    right: 0;
+    height: $carousel-height;
+
+    transition: all 0.3s;
+
+    &.visible {
+      bottom: 0;
+    }
+  }
+
+
 </style>
