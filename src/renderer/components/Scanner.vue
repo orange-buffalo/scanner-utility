@@ -1,8 +1,11 @@
 <template>
   <slide-y-down-transition>
     <div class="wrapper">
-      <div class="header">
-        header
+      <div class="header grid-noGutter-noBottom">
+        <div class="col-6">
+          <scanner-info :scanner="scanner"
+                        @configChangeRequested="showConfigDialog"></scanner-info>
+        </div>
       </div>
 
       <div class="page-preview"
@@ -14,7 +17,8 @@
       </div>
 
       <div class="carousel"
-           :class="carouselClassObject">dsf</div>
+           :class="carouselClassObject">dsf
+      </div>
     </div>
 
   </slide-y-down-transition>
@@ -24,17 +28,19 @@
   import scanner from "../services/scanner"
   import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
+  import ScannerInfo from "./Scanner/ScannerInfo"
   import {SlideYDownTransition} from 'vue2-transitions'
 
 
   let testcounter = 1
 
   export default {
-    name: 'scanner-selection',
-    components: {ScannerButton, SlideYDownTransition},
+    name: 'scanner',
+    components: {ScannerButton, SlideYDownTransition, ScannerInfo},
     data: function () {
       return {
-        carouselVisible: false
+        carouselVisible: false,
+        scanner: {}
       }
     },
     methods: {
@@ -42,9 +48,21 @@
         // this.$router.push("/")
         this.carouselVisible = !this.carouselVisible
 
+      },
+
+      showConfigDialog: function () {
+        console.log('dialog shown')
       }
     },
     created: function () {
+
+      this.scanner = {
+        name: 'Cannon TS9000 Series',
+        config: {
+          resolution: '1200',
+          colorMode: 'RGB24'
+        }
+      }
 
     },
     computed: {
