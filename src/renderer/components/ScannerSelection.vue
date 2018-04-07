@@ -17,96 +17,28 @@
   import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
   import {FadeTransition, SlideYUpTransition} from 'vue2-transitions'
-
-  let testcounter = 1
+  import _ from 'lodash'
 
   export default {
     name: 'scanner-selection',
+
     components: {ScannerButton, FadeTransition, SlideYUpTransition},
-    data: function () {
-      return {
-        scanners: []
-      }
-    },
-    methods: {},
+
     created: function () {
-      setTimeout(() => {
-        events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series - Pending',
-        address: '192.168.1.1',
-        status: scanner.Status.PENDING,
-          id:"1"
-      })
-      }, 2000)
-
-      setTimeout(() => {
-        events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series - Ready',
-        address: '192.168.1.1',
-        status: scanner.Status.READY,
-          id:"2"
-      })
-      }, 5000)
-
-      setTimeout(() => {
-        events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series - Failed',
-        address: '192.168.1.1',
-        status: scanner.Status.FAILED ,
-          id:"3"
-      })
-      }, 10000)
-
-
-
-      events.on('new-scanner', s => {
-        this.scanners.push(s)
-        this.scanners.sort((a, b) => {
-          let orders = []
-          orders[scanner.Status.READY] = 1
-          orders[scanner.Status.PENDING] = 2
-          orders[scanner.Status.FAILED] = 3
-          return orders[a.status] - orders[b.status]
-        })
-      })
-      events.on('scanner-update', s => {
-        this.scanners.sort((a, b) => {
-          let orders = []
-          orders[scanner.Status.READY] = 1
-          orders[scanner.Status.PENDING] = 2
-          orders[scanner.Status.FAILED] = 3
-          return orders[a.status] - orders[b.status]
-        })
-      })
-
       // scanner.startSearching()
-      events.emit('new-scanner', {
-        name: 'Cannon TS9080 Series',
-        address: '192.168.1.1',
-        status: scanner.Status.PENDING ,
-          id:"4"
-      })
+    },
 
-      events.emit('new-scanner', {
-        name: 'Cannon PIXMA MG7550 Series',
-        address: '192.168.1.170',
-        status: scanner.Status.READY,
-          id:"5"
-      })
-
-      events.emit('new-scanner', {
-        name: 'HP Test Connection Scanner New Generation',
-        address: '192.168.45.170',
-        status: scanner.Status.FAILED,
-          id:"6"
-      })
-
-      events.emit('new-scanner', {
-        name: 'Cannon TS6000 Series',
-        address: 'companthost',
-        status: scanner.Status.PENDING ,
-          id:"7"
-      })
+    computed: {
+      scanners: function () {
+        return _.sortBy(this.$store.state.scanners, (s) => {
+          switch (s.status) {
+            case scanner.Status.READY: return 1
+            case scanner.Status.PENDING: return 2
+            case scanner.Status.FAILED: return 3
+          }
+          return 42
+        })
+      }
     }
 
   }

@@ -2,8 +2,9 @@ import bonjour from 'bonjour'
 import axios from 'axios'
 import xml2js from 'xml2js'
 import log from 'electron-log'
-import events from './event-bus'
 import CapabilitiesReader from './_capabilities-reader'
+import store from '../store/store'
+import {NEW_SCANNER, SCANNER_UPDATED} from '../store/mutations'
 
 let Status = {
   PENDING: 1,
@@ -19,6 +20,8 @@ let Scanner = function (name, address, host, port) {
   this.address = address
   this.status = Status.PENDING
   this.id = scannerNextId.toString()
+  this.config = {}
+  this.capabilities = {}
   scannerNextId++
   scanners[this.id] = this
 
@@ -27,7 +30,7 @@ let Scanner = function (name, address, host, port) {
     timeout: 20000
   })
 
-  events.emit('new-scanner', this)
+  store.commit(NEW_SCANNER, this)
 
   let readCapabilities = rawCapabilities => {
     let capabilities = {
@@ -94,7 +97,14 @@ let Scanner = function (name, address, host, port) {
               else {
                 readCapabilities(result)
               }
-              events.emit('scanner-update', this)
+
+              store.commit(SCANNER_UPDATED, {
+                scannerId: this.id,
+                changeSet: {
+                  status: this.status,
+                  capabilities: this.capabilities
+                }
+              })
             }
         )
       })
@@ -102,7 +112,12 @@ let Scanner = function (name, address, host, port) {
         log.error(`failed to get capabilities of ${this.name} at ${this.address}`, error)
 
         this.status = Status.FAILED
-        events.emit('scanner-update', this)
+        store.commit(SCANNER_UPDATED, {
+          scannerId: this.id,
+          changeSet: {
+            status: this.status
+          }
+        })
       })
 }
 
@@ -129,3 +144,104 @@ export default {
   Status: Status,
   getById: getById
 }
+
+// todo remove
+//
+// setTimeout(() => {
+//   store.commit(NEW_SCANNER, {
+//     name: 'Cannon TS9080 Series - Pending',
+//     address: '192.168.1.1',
+//     status: Status.PENDING,
+//     id: scannerNextId++,
+//     capabilities: {},
+//     config: {}
+//   })
+// }, 2000)
+//
+// setTimeout(() => {
+//   store.commit(NEW_SCANNER, {
+//     name: 'Cannon TS9080 Series - Ready',
+//     address: '192.168.1.1',
+//     status: Status.READY,
+//     id: scannerNextId++,
+//     capabilities: {},
+//     config: {}
+//   })
+// }, 5000)
+//
+// setTimeout(() => {
+//   store.commit(NEW_SCANNER, {
+//     name: 'Cannon TS9080 Series - Failed',
+//     address: '192.168.1.1',
+//     status: Status.FAILED,
+//     id: scannerNextId++,
+//     capabilities: {},
+//     config: {}
+//   })
+// }, 10000)
+
+
+store.commit(NEW_SCANNER, {
+  name: 'Cannon TS9080 Series - For tests',
+  address: '192.168.1.1',
+  status: Status.PENDING,
+  id: scannerNextId++,
+  capabilities: {
+    colorModes: [
+      {
+        name: "RGB24",
+        isDefault: true
+      },
+      {
+        name: "Greyscale",
+        isDefault: false
+      }
+    ],
+    resolutions: [
+      {
+        value: "75",
+        isDefault: false
+      },
+      {
+        value: "100",
+        isDefault: false
+      },
+      {
+        value: "300",
+        isDefault: true
+      },
+      {
+        value: "600",
+        isDefault: false
+      }
+    ]
+  },
+  config: {}
+})
+
+store.commit(NEW_SCANNER, {
+  name: 'Cannon PIXMA MG7550 Series',
+  address: '192.168.1.170',
+  status: Status.READY,
+  id: scannerNextId++,
+  capabilities: {},
+  config: {}
+})
+
+store.commit(NEW_SCANNER, {
+  name: 'HP Test Connection Scanner New Generation',
+  address: '192.168.45.170',
+  status: Status.FAILED,
+  id: scannerNextId++,
+  capabilities: {},
+  config: {}
+})
+
+store.commit(NEW_SCANNER, {
+  name: 'Cannon TS6000 Series',
+  address: 'companthost',
+  status: Status.PENDING,
+  id: scannerNextId++,
+  capabilities: {},
+  config: {}
+})

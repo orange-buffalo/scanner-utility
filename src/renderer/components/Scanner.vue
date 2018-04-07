@@ -37,17 +37,22 @@
 
   export default {
     name: 'scanner',
+
     components: {ScannerButton, SlideYDownTransition, ScannerInfo, ScannerConfigDialog},
+
+    props: ['scannerId'],
+
     data: function () {
       return {
         carouselVisible: false,
         // scanner: {}
       }
     },
+
     methods: {
       back: function () {
-        // this.$router.push("/")
-        this.carouselVisible = !this.carouselVisible
+        this.$router.push("/")
+        // this.carouselVisible = !this.carouselVisible
 
       },
 
@@ -56,49 +61,16 @@
         this.$modal.show('scanner-config')
       }
     },
-    created: function () {
-      this.$store.commit(NEW_SCANNER, {
-        name: 'Cannon TS9000 Series',
-        capabilities: {
-          colorModes: [
-            {
-              name: "RGB24",
-              isDefault: true
-            },
-            {
-              name: "Greyscale",
-              isDefault: false
-            }
-          ],
-          resolutions: [
-            {
-              value: "75",
-              isDefault: false
-            },
-            {
-              value: "100",
-              isDefault: false
-            },
-            {
-              value: "300",
-              isDefault: true
-            },
-            {
-              value: "600",
-              isDefault: false
-            }
-          ]
-        }
-      })
 
-      let scanner = this.$store.state.scanners[0]
+    created: function () {
+      //todo move to service
       this.$store.commit(SET_SCANNER_CONFIG, {
-        scannerId: scanner.id,
+        scannerId: this.scanner.id,
         config: {
-          resolution: scanner.capabilities.resolutions.find((r) => {
+          resolution: this.scanner.capabilities.resolutions.find((r) => {
             return r.isDefault
           }),
-          colorMode: scanner.capabilities.colorModes.find((cm) => {
+          colorMode: this.scanner.capabilities.colorModes.find((cm) => {
             return cm.isDefault
           })
         }
@@ -106,8 +78,9 @@
     },
     computed: {
       scanner: function () {
-        return this.$store.state.scanners[0]
+        return this.$store.getters.getScannerById(this.scannerId)
       },
+      
       pagePreviewClassObject: function () {
         return {
           "with-carousel": this.carouselVisible

@@ -13,7 +13,8 @@ export default new Router({
     {
       path: '/scanner/:scannerId',
       name: 'scanner',
-      component: require('@/components/Scanner').default
+      component: require('@/components/Scanner').default,
+      props: true
     },
     {
       path: '*',
