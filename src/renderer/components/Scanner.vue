@@ -3,8 +3,10 @@
     <div class="wrapper">
       <div class="header grid-noGutter-noBottom">
         <div class="col-6">
-          <scanner-info :scanner="scanner"
+          <scanner-info :scannerId="scanner.id"
                         @configChangeRequested="showConfigDialog"></scanner-info>
+
+          <scanner-config-dialog :scannerId="scanner.id"></scanner-config-dialog>
         </div>
       </div>
 
@@ -29,18 +31,17 @@
   import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
   import ScannerInfo from "./Scanner/ScannerInfo"
+  import ScannerConfigDialog from "./Scanner/ScannerConfigDialog"
   import {SlideYDownTransition} from 'vue2-transitions'
-
-
-  let testcounter = 1
+  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../store/mutations'
 
   export default {
     name: 'scanner',
-    components: {ScannerButton, SlideYDownTransition, ScannerInfo},
+    components: {ScannerButton, SlideYDownTransition, ScannerInfo, ScannerConfigDialog},
     data: function () {
       return {
         carouselVisible: false,
-        scanner: {}
+        // scanner: {}
       }
     },
     methods: {
@@ -52,20 +53,61 @@
 
       showConfigDialog: function () {
         console.log('dialog shown')
+        this.$modal.show('scanner-config')
       }
     },
     created: function () {
-
-      this.scanner = {
+      this.$store.commit(NEW_SCANNER, {
         name: 'Cannon TS9000 Series',
-        config: {
-          resolution: '1200',
-          colorMode: 'RGB24'
+        capabilities: {
+          colorModes: [
+            {
+              name: "RGB24",
+              isDefault: true
+            },
+            {
+              name: "Greyscale",
+              isDefault: false
+            }
+          ],
+          resolutions: [
+            {
+              value: "75",
+              isDefault: false
+            },
+            {
+              value: "100",
+              isDefault: false
+            },
+            {
+              value: "300",
+              isDefault: true
+            },
+            {
+              value: "600",
+              isDefault: false
+            }
+          ]
         }
-      }
+      })
 
+      let scanner = this.$store.state.scanners[0]
+      this.$store.commit(SET_SCANNER_CONFIG, {
+        scannerId: scanner.id,
+        config: {
+          resolution: scanner.capabilities.resolutions.find((r) => {
+            return r.isDefault
+          }),
+          colorMode: scanner.capabilities.colorModes.find((cm) => {
+            return cm.isDefault
+          })
+        }
+      })
     },
     computed: {
+      scanner: function () {
+        return this.$store.state.scanners[0]
+      },
       pagePreviewClassObject: function () {
         return {
           "with-carousel": this.carouselVisible

@@ -4,7 +4,9 @@
       <span class="scanner-name">{{scanner.name}}</span>
       <br/>
       <span class="scanner-config"
-            @click.stop="configChangeRequested">{{scannerConfigAsString}}</span>
+            @click.stop="configChangeRequested">
+        {{scanner.config.resolution.value}}dpi / {{this.scanner.config.colorMode.name}}
+      </span>
     </div>
   </div>
 </template>
@@ -13,7 +15,7 @@
 
   export default {
     name: 'scanner-info',
-    props: ['scanner'],
+    props: ['scannerId'],
 
     methods: {
       configChangeRequested: function () {
@@ -22,8 +24,8 @@
     },
 
     computed: {
-      scannerConfigAsString: function () {
-        return `${this.scanner.config.resolution}dpi / ${this.scanner.config.colorMode}`
+      scanner: function () {
+          return this.$store.getters.getScannerById(this.scannerId)
       }
     }
   }
