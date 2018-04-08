@@ -1,7 +1,7 @@
 <template>
   <slide-y-down-transition>
     <div class="wrapper">
-      <div class="header grid-noGutter-noBottom">
+      <div class="header grid-noGutter-noBottom-middle">
         <div class="col-6">
           <div class="back-button" @click="back">
             <icon name="chevron-left" scale="2"/>
@@ -13,6 +13,26 @@
 
             <scanner-config-dialog :scannerId="scanner.id"></scanner-config-dialog>
           </div>
+        </div>
+
+        <div class="col-6">
+          <b-button class="scan-button" @click="startScanning"
+                    :disabled="isScanning">
+            <i>
+              <icon name="inbox"></icon>
+            </i>
+            {{isScanning ? 'Scanning...' : 'Scan'}}
+          </b-button>
+
+          <b-dropdown text="...">
+            <b-dropdown-item>First Action</b-dropdown-item>
+            <b-dropdown-item>Second Action</b-dropdown-item>
+            <b-dropdown-item>Third Action</b-dropdown-item>
+            <b-dropdown-divider></b-dropdown-divider>
+            <b-dropdown-item>Something else here...</b-dropdown-item>
+            <b-dropdown-item disabled>Disabled action</b-dropdown-item>
+          </b-dropdown>
+
         </div>
       </div>
 
@@ -62,6 +82,11 @@
       showConfigDialog: function () {
         console.log('dialog shown')
         this.$modal.show('scanner-config')
+      },
+
+      startScanning: function () {
+        this.scanner.startScanning()
+
       }
     },
 
@@ -78,8 +103,17 @@
           })
         }
       })
+
+
+      events.on("scan-progress", (event) => {
+         console.log(event)
+      })
     },
     computed: {
+      isScanning: function () {
+        return this.scanner.status == scanner.Status.SCANNING
+      },
+
       scanner: function () {
         return this.$store.getters.getScannerById(this.scannerId)
       },
@@ -123,10 +157,8 @@
 
     .back-button {
       display: inline-block;
-      height: 100%;
-      box-sizing: border-box;
       float: left;
-      padding: 15px 5px 5px;
+      padding: 0 5px 0 5px;
       transition: all 0.3s;
 
       &:hover {
@@ -136,8 +168,13 @@
 
     .scanner-info {
       display: inline-block;
-      height: 100%;
       float: left;
+    }
+
+    .scan-button {
+      i {
+
+      }
     }
 
   }

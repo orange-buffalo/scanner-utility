@@ -30,7 +30,7 @@ const store = new Vuex.Store({
 
   getters: {
     getScannerById: (state) => (id) => {
-      return state.scanners.find(scanner => scanner.id === id)
+      return state.scanners.find(scanner => scanner.id == id)
     }
   }
 })

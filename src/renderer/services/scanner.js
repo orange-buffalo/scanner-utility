@@ -5,11 +5,13 @@ import log from 'electron-log'
 import CapabilitiesReader from './_capabilities-reader'
 import store from '../store/store'
 import {NEW_SCANNER, SCANNER_UPDATED} from '../store/mutations'
+import events from "../services/event-bus"
 
 let Status = {
   PENDING: 1,
   FAILED: 2,
-  READY: 3
+  READY: 3,
+  SCANNING: 4
 }
 
 let scannerNextId = 42
@@ -119,6 +121,10 @@ let Scanner = function (name, address, host, port) {
           }
         })
       })
+
+  this.startScanning = function () {
+    this.status = Status.SCANNING
+  }
 }
 
 function _onServiceFound(service) {
@@ -186,9 +192,7 @@ store.commit(NEW_SCANNER, {
   address: '192.168.1.1',
   status: Status.PENDING,
   id: scannerNextId++,
-  capabilities: {
-
-  },
+  capabilities: {},
   config: {}
 })
 
@@ -197,7 +201,8 @@ store.commit(NEW_SCANNER, {
   address: '192.168.1.170',
   status: Status.READY,
   id: scannerNextId++,
-  capabilities: {colorModes: [
+  capabilities: {
+    colorModes: [
       {
         name: "RGB24",
         isDefault: true
@@ -224,8 +229,34 @@ store.commit(NEW_SCANNER, {
         value: "600",
         isDefault: false
       }
-    ]},
-  config: {}
+    ]
+  },
+  config: {},
+  startScanning: function () {
+    this.status = Status.SCANNING
+    store.commit(SCANNER_UPDATED, {
+      scannerId: this.id,
+      changeSet: {
+        status: this.status
+      }
+    })
+
+    setTimeout(()=> {
+      events.emit("scan-progress", {
+        fileName: '/home/orange-buffalo/Downloads/Telegram Desktop/IMG_3638.jpeg'
+      })
+
+      this.status = Status.READY
+    store.commit(SCANNER_UPDATED, {
+      scannerId: this.id,
+      changeSet: {
+        status: this.status
+      }
+    })
+
+
+    }, 2000)
+  }
 })
 
 store.commit(NEW_SCANNER, {
