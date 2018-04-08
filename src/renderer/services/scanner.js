@@ -257,7 +257,7 @@ store.commit(NEW_SCANNER, {
     })
 
 
-    }, 2000)
+    }, 0)
   }
 })
 

@@ -44,7 +44,21 @@
       </div>
 
       <div class="carousel"
-           :class="carouselClassObject">dsf
+           :class="carouselClassObject">
+
+        <swiper :options="swiperOption">
+          <swiper-slide v-for="page in pages"
+                        :key="page.fileName"
+                        :style="getCarouselSlideStyle(page)"
+                        @click="activePage = page">
+            <img :src="page.fileName">
+          </swiper-slide>
+
+          <div class="swiper-pagination" slot="pagination"></div>
+          <div class="swiper-button-prev" slot="button-prev"></div>
+          <div class="swiper-button-next" slot="button-next"></div>
+        </swiper>
+
       </div>
     </div>
 
@@ -72,8 +86,22 @@
       return {
         // carouselVisible: false,
         pages: [],
-        activePage: null
+        activePage: null,
         // scanner: {}
+        swiperOption: {
+          slidesPerView: 'auto',
+          spaceBetween: 0,
+          centeredSlides: true,
+          freeMode: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev'
+          },
+        }
       }
     },
 
@@ -90,6 +118,13 @@
       startScanning: function () {
         this.scanner.startScanning()
 
+      },
+
+      getCarouselSlideStyle: function (page) {
+        let width = 200.0 * page.width / page.height
+        return {
+          width: width + 'px'
+        }
       }
     },
 
@@ -116,6 +151,7 @@
         this.pages.push(this.activePage)
       })
     },
+
     computed: {
       isScanning: function () {
         return this.scanner.status == scanner.Status.SCANNING
@@ -141,7 +177,8 @@
 
       carouselVisible: function () {
         return this.pages.length > 1
-      }
+      },
+
     }
 
   }
@@ -214,6 +251,20 @@
 
     &.visible {
       bottom: 0;
+    }
+
+    .swiper-container {
+      height: 100%;
+
+      .swiper-slide {
+        text-align: center;
+        padding: 5px 10px;
+
+        img {
+          max-width: 100%;
+          max-height: 100%;
+        }
+      }
     }
   }
 

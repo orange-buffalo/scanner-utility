@@ -9,6 +9,9 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import {Dropdown} from 'bootstrap-vue/es/components'
 import {Button} from 'bootstrap-vue/es/components'
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import 'swiper/dist/css/swiper.css'
+
 
 import App from './App'
 import router from './router'
@@ -22,6 +25,7 @@ Vue.component('v-select', Multiselect)
 Vue.use(VModal)
 Vue.use(Dropdown)
 Vue.use(Button)
+Vue.use(VueAwesomeSwiper)
 
 new Vue({
   components: {App},
