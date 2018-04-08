@@ -74,6 +74,7 @@
   import ScannerConfigDialog from "./Scanner/ScannerConfigDialog"
   import {SlideYDownTransition} from 'vue2-transitions'
   import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../store/mutations'
+  import _ from 'lodash'
 
   export default {
     name: 'scanner',
@@ -144,11 +145,21 @@
 
 
       events.on("scan-progress", (event) => {
-        this.activePage = {}
-        this.$set(this.activePage, 'fileName', event.fileName)
-        this.$set(this.activePage, 'width', this.scanner.capabilities.maxWidth)
-        this.$set(this.activePage, 'height', this.scanner.capabilities.maxHeight)
-        this.pages.push(this.activePage)
+        let page = this.pages.find((p) => p.pageId == event.pageId)
+        if (page) {
+          this.activePage = page
+        }
+        else {
+          this.activePage = _.extend({}, this.activePage, {
+            pageId: event.pageId,
+            width: this.scanner.capabilities.maxWidth,
+            height: this.scanner.capabilities.maxHeight,
+            fileName: null
+          })
+          this.pages.push(this.activePage)
+        }
+
+        this.activePage.fileName = `${event.fileName}?anticache=${new Date().getTime()}`
       })
     },
 

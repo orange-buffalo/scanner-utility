@@ -6,6 +6,10 @@ import CapabilitiesReader from './_capabilities-reader'
 import store from '../store/store'
 import {NEW_SCANNER, SCANNER_UPDATED} from '../store/mutations'
 import events from "../services/event-bus"
+import fileStorage from './file-storage'
+import fs from 'fs'
+import request from 'request'
+import progress from 'request-progress'
 
 let Status = {
   PENDING: 1,
@@ -16,6 +20,7 @@ let Status = {
 
 let scannerNextId = 42
 let scanners = []
+let pageNextId = 42
 
 let Scanner = function (name, address, host, port) {
   this.name = name
@@ -243,21 +248,69 @@ store.commit(NEW_SCANNER, {
       }
     })
 
-    setTimeout(()=> {
-      events.emit("scan-progress", {
-        fileName: 'file:///home/orange-buffalo/Downloads/Telegram Desktop/IMG_3638.jpeg'
-      })
+    let pageId = pageNextId++
+    let fileName = fileStorage.createNewFile()
 
-      this.status = Status.READY
-    store.commit(SCANNER_UPDATED, {
-      scannerId: this.id,
-      changeSet: {
-        status: this.status
-      }
+    console.log(`new file ${fileName}`)
+
+    progress(request('https://picsum.photos/1500/2064/?random'), {
+      // throttle: 100,                    // Throttle the progress event to 2000ms, defaults to 1000ms
+      // delay: 1000,                       // Only start to emit after 1000ms delay, defaults to 0ms
+      // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
     })
+        .on('progress', (state) => {
+          // The state is an object that looks like this:
+          // {
+          //     percent: 0.5,               // Overall percent (between 0 to 1)
+          //     speed: 554732,              // The download speed in bytes/sec
+          //     size: {
+          //         total: 90044871,        // The total payload size in bytes
+          //         transferred: 27610959   // The transferred payload size in bytes
+          //     },
+          //     time: {
+          //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
+          //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
+          //     }
+          // }
+          console.log('progress', state)
 
+          events.emit("scan-progress", {
+            pageId: pageId,
+            fileName: `file:///${fileName}`,
+            percent: state.percent * 100
+          })
+        })
+        .on('error', (err) => {
+          console.log('error')
+          console.log(err)
 
-    }, 0)
+          this.status = Status.FAILED
+          store.commit(SCANNER_UPDATED, {
+            scannerId: this.id,
+            changeSet: {
+              status: this.status
+            }
+          })
+        })
+        .on('end', () => {
+          console.log('progress end')
+
+          events.emit("scan-progress", {
+            pageId: pageId,
+            fileName: `file:///${fileName}`,
+            percent: 100
+          })
+
+          this.status = Status.READY
+          store.commit(SCANNER_UPDATED, {
+            scannerId: this.id,
+            changeSet: {
+              status: this.status
+            }
+          })
+        })
+        .pipe(fs.createWriteStream(fileName))
+
   }
 })
 

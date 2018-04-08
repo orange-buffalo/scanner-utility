@@ -1,5 +1,6 @@
 {
   "name": "scanner-utility",
+  "productName": "Scanner Utility",
   "version": "0.0.0",
   "author": "orange-buffalo <orange-buffalo@users.noreply.github.com>",
   "description": "",
@@ -58,6 +59,7 @@
     "electron-log": "^2.2.14",
     "gridlex": "^2.7.1",
     "lodash": "^4.17.5",
+    "request-progress": "^3.0.0",
     "reset-css": "^3.0.0",
     "typeface-khula": "0.0.54",
     "vue": "^2.5.16",
