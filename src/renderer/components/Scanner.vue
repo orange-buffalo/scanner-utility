@@ -16,22 +16,28 @@
         </div>
 
         <div class="col-6">
-          <b-button class="scan-button" @click="startScanning"
-                    :disabled="isScanning">
-            <i>
+          <simple-button classes="scan-button" @click="startScanning">
+             <i>
               <icon name="inbox"></icon>
             </i>
             {{isScanning ? 'Scanning...' : 'Scan'}}
-          </b-button>
+          </simple-button>
+          <!--<b-button -->
+                    <!--:disabled="isScanning">-->
+            <!---->
+          <!--</b-button>-->
 
-          <b-dropdown text="...">
-            <b-dropdown-item>First Action</b-dropdown-item>
-            <b-dropdown-item>Second Action</b-dropdown-item>
-            <b-dropdown-item>Third Action</b-dropdown-item>
-            <b-dropdown-divider></b-dropdown-divider>
-            <b-dropdown-item>Something else here...</b-dropdown-item>
-            <b-dropdown-item disabled>Disabled action</b-dropdown-item>
-          </b-dropdown>
+          <popover name="example">
+            <div slot="face">
+              <button>popover face</button>
+            </div>
+            <div slot="content">
+              <ul>
+                <li><a href="#">npmjs.com</a></li>
+                <li><a href="#">github.com</a></li>
+              </ul>
+            </div>
+          </popover>
 
         </div>
       </div>
@@ -66,20 +72,23 @@
 </template>
 
 <script>
-  import scanner from "../services/scanner"
-  import events from "../services/event-bus"
-  import ScannerButton from "./ScannerSelection/ScannerButton"
-  import ScannerInfo from "./Scanner/ScannerInfo"
-  import ScannerPage from "./Scanner/ScannerPage"
-  import ScannerConfigDialog from "./Scanner/ScannerConfigDialog"
+  import scanner from '../services/scanner'
+  import events from '../services/event-bus'
+  import ScannerButton from './ScannerSelection/ScannerButton'
+  import ScannerInfo from './Scanner/ScannerInfo'
+  import ScannerPage from './Scanner/ScannerPage'
+  import ScannerConfigDialog from './Scanner/ScannerConfigDialog'
   import {SlideYDownTransition} from 'vue2-transitions'
   import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../store/mutations'
   import _ from 'lodash'
+  import SimpleButton from './SimpleButton.vue'
+  import popover from 'vue-popover'
 
   export default {
     name: 'scanner',
 
-    components: {ScannerButton, SlideYDownTransition, ScannerInfo, ScannerConfigDialog, ScannerPage},
+    components: {SimpleButton, ScannerButton, SlideYDownTransition, ScannerInfo,
+      ScannerConfigDialog, ScannerPage, popover},
 
     props: ['scannerId'],
 
@@ -198,6 +207,7 @@
 <style lang="scss" scoped>
 
   @import "../styles/var";
+  @import "~vue-popover/dist/styles.css";
 
   $carousel-height: 200px;
 

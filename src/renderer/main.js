@@ -5,10 +5,6 @@ import Icon from 'vue-awesome/components/Icon'
 import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import VModal from 'vue-js-modal'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import {Dropdown} from 'bootstrap-vue/es/components'
-import {Button} from 'bootstrap-vue/es/components'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 import 'swiper/dist/css/swiper.css'
 
@@ -23,8 +19,6 @@ Vue.http = Vue.prototype.$http = axios
 Vue.component('icon', Icon)
 Vue.component('v-select', Multiselect)
 Vue.use(VModal)
-Vue.use(Dropdown)
-Vue.use(Button)
 Vue.use(VueAwesomeSwiper)
 
 new Vue({
