@@ -202,6 +202,8 @@ store.commit(NEW_SCANNER, {
   status: Status.READY,
   id: scannerNextId++,
   capabilities: {
+    maxWidth: 2550,
+    maxHeight: 3508,
     colorModes: [
       {
         name: "RGB24",
@@ -243,7 +245,7 @@ store.commit(NEW_SCANNER, {
 
     setTimeout(()=> {
       events.emit("scan-progress", {
-        fileName: '/home/orange-buffalo/Downloads/Telegram Desktop/IMG_3638.jpeg'
+        fileName: 'file:///home/orange-buffalo/Downloads/Telegram Desktop/IMG_3638.jpeg'
       })
 
       this.status = Status.READY

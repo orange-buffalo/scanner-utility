@@ -38,9 +38,9 @@
 
       <div class="page-preview"
            :class="pagePreviewClassObject">
+        <scanner-page :page="activePage">
 
-        page
-
+        </scanner-page>
       </div>
 
       <div class="carousel"
@@ -56,6 +56,7 @@
   import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
   import ScannerInfo from "./Scanner/ScannerInfo"
+  import ScannerPage from "./Scanner/ScannerPage"
   import ScannerConfigDialog from "./Scanner/ScannerConfigDialog"
   import {SlideYDownTransition} from 'vue2-transitions'
   import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../store/mutations'
@@ -63,13 +64,15 @@
   export default {
     name: 'scanner',
 
-    components: {ScannerButton, SlideYDownTransition, ScannerInfo, ScannerConfigDialog},
+    components: {ScannerButton, SlideYDownTransition, ScannerInfo, ScannerConfigDialog, ScannerPage},
 
     props: ['scannerId'],
 
     data: function () {
       return {
-        carouselVisible: false,
+        // carouselVisible: false,
+        pages: [],
+        activePage: null
         // scanner: {}
       }
     },
@@ -106,7 +109,11 @@
 
 
       events.on("scan-progress", (event) => {
-         console.log(event)
+        this.activePage = {}
+        this.$set(this.activePage, 'fileName', event.fileName)
+        this.$set(this.activePage, 'width', this.scanner.capabilities.maxWidth)
+        this.$set(this.activePage, 'height', this.scanner.capabilities.maxHeight)
+        this.pages.push(this.activePage)
       })
     },
     computed: {
@@ -130,6 +137,10 @@
           "visible": this.carouselVisible
         }
 
+      },
+
+      carouselVisible: function () {
+        return this.pages.length > 1
       }
     }
 
@@ -185,7 +196,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #F5F7F7;
     transition: all 0.3s;
 
     &.with-carousel {
