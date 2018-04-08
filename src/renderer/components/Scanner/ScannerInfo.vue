@@ -58,7 +58,7 @@
     transition: all 0.3s;
 
     &:hover {
-      color: lighten($txt-color, 10);
+      color: $txt-hover-color;
     }
   }
 

@@ -182,12 +182,22 @@ export default {
 
 
 store.commit(NEW_SCANNER, {
-  name: 'Cannon TS9080 Series - For tests',
+  name: 'Cannon TS9080 Series',
   address: '192.168.1.1',
   status: Status.PENDING,
   id: scannerNextId++,
   capabilities: {
-    colorModes: [
+
+  },
+  config: {}
+})
+
+store.commit(NEW_SCANNER, {
+  name: 'Cannon PIXMA MG7550 Series - For Tests',
+  address: '192.168.1.170',
+  status: Status.READY,
+  id: scannerNextId++,
+  capabilities: {colorModes: [
       {
         name: "RGB24",
         isDefault: true
@@ -214,17 +224,7 @@ store.commit(NEW_SCANNER, {
         value: "600",
         isDefault: false
       }
-    ]
-  },
-  config: {}
-})
-
-store.commit(NEW_SCANNER, {
-  name: 'Cannon PIXMA MG7550 Series',
-  address: '192.168.1.170',
-  status: Status.READY,
-  id: scannerNextId++,
-  capabilities: {},
+    ]},
   config: {}
 })
 

@@ -3,16 +3,21 @@
     <div class="wrapper">
       <div class="header grid-noGutter-noBottom">
         <div class="col-6">
-          <scanner-info :scannerId="scanner.id"
-                        @configChangeRequested="showConfigDialog"></scanner-info>
+          <div class="back-button" @click="back">
+            <icon name="chevron-left" scale="2"/>
+          </div>
 
-          <scanner-config-dialog :scannerId="scanner.id"></scanner-config-dialog>
+          <div class="scanner-info">
+            <scanner-info :scannerId="scanner.id"
+                          @configChangeRequested="showConfigDialog"></scanner-info>
+
+            <scanner-config-dialog :scannerId="scanner.id"></scanner-config-dialog>
+          </div>
         </div>
       </div>
 
       <div class="page-preview"
-           :class="pagePreviewClassObject"
-           @click="back">
+           :class="pagePreviewClassObject">
 
         page
 
@@ -52,8 +57,6 @@
     methods: {
       back: function () {
         this.$router.push("/")
-        // this.carouselVisible = !this.carouselVisible
-
       },
 
       showConfigDialog: function () {
@@ -80,7 +83,7 @@
       scanner: function () {
         return this.$store.getters.getScannerById(this.scannerId)
       },
-      
+
       pagePreviewClassObject: function () {
         return {
           "with-carousel": this.carouselVisible
@@ -100,6 +103,9 @@
 </script>
 
 <style lang="scss" scoped>
+
+  @import "../styles/var";
+
   $carousel-height: 200px;
 
   .wrapper {
@@ -114,6 +120,26 @@
     left: 0;
     height: 70px;
     right: 0;
+
+    .back-button {
+      display: inline-block;
+      height: 100%;
+      box-sizing: border-box;
+      float: left;
+      padding: 15px 5px 5px;
+      transition: all 0.3s;
+
+      &:hover {
+        color: $txt-hover-color;
+      }
+    }
+
+    .scanner-info {
+      display: inline-block;
+      height: 100%;
+      float: left;
+    }
+
   }
 
   .page-preview {
