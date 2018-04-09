@@ -16,20 +16,19 @@
         </div>
 
         <div class="col-6">
-          <simple-button classes="scan-button" @click="startScanning">
-             <i>
-              <icon name="inbox"></icon>
-            </i>
+          <simple-button class="scan-button"
+                         :disabled="isScanning"
+                         @click="startScanning">
+            <icon name="inbox"></icon>
             {{isScanning ? 'Scanning...' : 'Scan'}}
           </simple-button>
-          <!--<b-button -->
-                    <!--:disabled="isScanning">-->
-            <!---->
-          <!--</b-button>-->
 
-          <popover name="example">
+          <popover name="actions" ref="actionsPopover">
             <div slot="face">
-              <button>popover face</button>
+              <simple-button class="actions-button" @click="openActionsPopover">
+                <icon name="bars"></icon>
+                &nbsp;
+              </simple-button>
             </div>
             <div slot="content">
               <ul>
@@ -87,8 +86,10 @@
   export default {
     name: 'scanner',
 
-    components: {SimpleButton, ScannerButton, SlideYDownTransition, ScannerInfo,
-      ScannerConfigDialog, ScannerPage, popover},
+    components: {
+      SimpleButton, ScannerButton, SlideYDownTransition, ScannerInfo,
+      ScannerConfigDialog, ScannerPage, popover
+    },
 
     props: ['scannerId'],
 
@@ -116,6 +117,10 @@
     },
 
     methods: {
+      openActionsPopover: function (e) {
+        this.$refs.actionsPopover.onPopoverToggle(e)
+      },
+
       back: function () {
         this.$router.push("/")
       },
@@ -241,9 +246,16 @@
     }
 
     .scan-button {
-      i {
 
-      }
+    }
+
+    .actions-button {
+      padding-right: 1px;
+      margin-left: 10px;
+    }
+
+    .popover {
+      display: inline-block;
     }
 
   }

@@ -1,5 +1,7 @@
 <template>
-  <div class="button" @click.stop="onClick">
+  <div class="button"
+       :class="styleClasses"
+       @click.stop="onClick">
     <slot></slot>
   </div>
 </template>
@@ -9,16 +11,20 @@
   export default {
     name: 'simple-button',
 
-    props: ['classes'],
+    props: ['disabled'],
 
     methods: {
-      onClick: function () {
-        this.$emit('click')
+      onClick: function (e) {
+        if (!this.disabled) {
+          this.$emit('click', e)
+        }
       }
     },
 
     computed: {
-
+      styleClasses: function () {
+        return this.disabled ? 'disabled' : ''
+      }
     }
   }
 
@@ -29,8 +35,32 @@
 
   .button {
     display: inline-block;
-    padding: 5px;
-    background-color: #b16f6f;
+
+    position: relative;
+    line-height: 1;
+    padding: 10px 15px 10px 45px;
+    border-radius: 2px;
+    border: 1px solid darken($txt-color, 20);
+    transition: all 0.3s;
+
+    &:hover {
+      background-color: lighten($bg-color, 5);
+    }
+
+    &.disabled {
+      &:hover {
+        background-color: $bg-color;
+      }
+    }
+
+    .fa-icon {
+      position: absolute;
+      top: 50%;
+      left: 15px;
+      transform: translateY(-60%);
+      height: 20px;
+      width: 20px;
+    }
   }
 
 </style>
