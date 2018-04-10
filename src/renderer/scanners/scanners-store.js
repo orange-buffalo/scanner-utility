@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {NEW_SCANNER, SET_SCANNER_CONFIG, SCANNER_UPDATED} from './mutations'
+import {NEW_SCANNER, SET_SCANNER_CONFIG, SCANNER_UPDATED} from './scanners-mutations'
 import _ from 'lodash'
 
 Vue.use(Vuex)
 
-const store = new Vuex.Store({
+const scannersStore = new Vuex.Store({
   state: {
     scanners: []
   },
@@ -35,4 +35,4 @@ const store = new Vuex.Store({
   }
 })
 
-export default store
+export default scannersStore

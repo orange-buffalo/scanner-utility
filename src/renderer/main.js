@@ -11,7 +11,7 @@ import 'swiper/dist/css/swiper.css'
 
 import App from './App'
 import router from './router'
-import store from './store/store'
+import scannersStore from './scanners/scanners-store'
 import './styles/main.scss'
 
 Vue.config.productionTip = false
@@ -23,7 +23,7 @@ Vue.use(VueAwesomeSwiper)
 
 new Vue({
   components: {App},
-  store,
+  store: scannersStore,
   router,
   template: '<App/>'
 }).$mount('#app')

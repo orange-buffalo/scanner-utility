@@ -35,7 +35,7 @@
 
 <script>
 
-  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../../store/mutations'
+  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../../scanners/scanners-mutations'
 
   export default {
     name: 'scanner-config-dialog',

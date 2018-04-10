@@ -78,7 +78,7 @@
   import ScannerPage from './Scanner/ScannerPage'
   import ScannerConfigDialog from './Scanner/ScannerConfigDialog'
   import {SlideYDownTransition} from 'vue2-transitions'
-  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../store/mutations'
+  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../scanners/scanners-mutations'
   import _ from 'lodash'
   import SimpleButton from './SimpleButton.vue'
   import popover from 'vue-popover'

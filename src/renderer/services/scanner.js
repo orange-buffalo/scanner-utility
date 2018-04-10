@@ -3,8 +3,8 @@ import axios from 'axios'
 import xml2js from 'xml2js'
 import log from 'electron-log'
 import CapabilitiesReader from './_capabilities-reader'
-import store from '../store/store'
-import {NEW_SCANNER, SCANNER_UPDATED} from '../store/mutations'
+import scannersStore from '../scanners/scanners-store'
+import {NEW_SCANNER, SCANNER_UPDATED} from '../scanners/scanners-mutations'
 import events from "../services/event-bus"
 import fileStorage from './file-storage'
 import fs from 'fs'
@@ -37,7 +37,7 @@ let Scanner = function (name, address, host, port) {
     timeout: 20000
   })
 
-  store.commit(NEW_SCANNER, this)
+  scannersStore.commit(NEW_SCANNER, this)
 
   let readCapabilities = rawCapabilities => {
     let capabilities = {
@@ -105,7 +105,7 @@ let Scanner = function (name, address, host, port) {
                 readCapabilities(result)
               }
 
-              store.commit(SCANNER_UPDATED, {
+              scannersStore.commit(SCANNER_UPDATED, {
                 scannerId: this.id,
                 changeSet: {
                   status: this.status,
@@ -119,7 +119,7 @@ let Scanner = function (name, address, host, port) {
         log.error(`failed to get capabilities of ${this.name} at ${this.address}`, error)
 
         this.status = Status.FAILED
-        store.commit(SCANNER_UPDATED, {
+        scannersStore.commit(SCANNER_UPDATED, {
           scannerId: this.id,
           changeSet: {
             status: this.status
@@ -192,7 +192,7 @@ export default {
 // }, 10000)
 
 
-store.commit(NEW_SCANNER, {
+scannersStore.commit(NEW_SCANNER, {
   name: 'Cannon TS9080 Series',
   address: '192.168.1.1',
   status: Status.PENDING,
@@ -201,7 +201,7 @@ store.commit(NEW_SCANNER, {
   config: {}
 })
 
-store.commit(NEW_SCANNER, {
+scannersStore.commit(NEW_SCANNER, {
   name: 'Cannon PIXMA MG7550 Series - For Tests',
   address: '192.168.1.170',
   status: Status.READY,
@@ -241,7 +241,7 @@ store.commit(NEW_SCANNER, {
   config: {},
   startScanning: function () {
     this.status = Status.SCANNING
-    store.commit(SCANNER_UPDATED, {
+    scannersStore.commit(SCANNER_UPDATED, {
       scannerId: this.id,
       changeSet: {
         status: this.status
@@ -285,7 +285,7 @@ store.commit(NEW_SCANNER, {
           console.log(err)
 
           this.status = Status.FAILED
-          store.commit(SCANNER_UPDATED, {
+          scannersStore.commit(SCANNER_UPDATED, {
             scannerId: this.id,
             changeSet: {
               status: this.status
@@ -302,7 +302,7 @@ store.commit(NEW_SCANNER, {
           })
 
           this.status = Status.READY
-          store.commit(SCANNER_UPDATED, {
+          scannersStore.commit(SCANNER_UPDATED, {
             scannerId: this.id,
             changeSet: {
               status: this.status
@@ -314,7 +314,7 @@ store.commit(NEW_SCANNER, {
   }
 })
 
-store.commit(NEW_SCANNER, {
+scannersStore.commit(NEW_SCANNER, {
   name: 'HP Test Connection Scanner New Generation',
   address: '192.168.45.170',
   status: Status.FAILED,
@@ -323,7 +323,7 @@ store.commit(NEW_SCANNER, {
   config: {}
 })
 
-store.commit(NEW_SCANNER, {
+scannersStore.commit(NEW_SCANNER, {
   name: 'Cannon TS6000 Series',
   address: 'companthost',
   status: Status.PENDING,
