@@ -14,7 +14,6 @@
 
 <script>
   import scanner from "../services/scanner"
-  import events from "../services/event-bus"
   import ScannerButton from "./ScannerSelection/ScannerButton"
   import {FadeTransition, SlideYUpTransition} from 'vue2-transitions'
   import _ from 'lodash'
@@ -30,11 +29,14 @@
 
     computed: {
       scanners: function () {
-        return _.sortBy(this.$store.state.scanners, (s) => {
+        return _.sortBy(this.$store.state.scanners.scanners, (s) => {
           switch (s.status) {
-            case scanner.Status.READY: return 1
-            case scanner.Status.PENDING: return 2
-            case scanner.Status.FAILED: return 3
+            case scanner.Status.READY:
+              return 1
+            case scanner.Status.PENDING:
+              return 2
+            case scanner.Status.FAILED:
+              return 3
           }
           return 42
         })

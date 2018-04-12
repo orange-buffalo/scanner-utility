@@ -13,6 +13,8 @@
 
 <script>
 
+  import { mapGetters } from 'vuex'
+
   export default {
     name: 'scanner-info',
     props: ['scannerId'],
@@ -24,8 +26,12 @@
     },
 
     computed: {
+      ...mapGetters({
+        getScannerById: 'scanners/getScannerById'
+      }),
+
       scanner: function () {
-          return this.$store.getters.getScannerById(this.scannerId)
+          return this.getScannerById(this.scannerId)
       }
     }
   }

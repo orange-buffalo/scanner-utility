@@ -1,7 +1,7 @@
 <template>
   <div class="scanner-page grid-middle-noGutter-noBottom">
     <div class="col page-container">
-      <img :src="page.fileName"
+      <img :src="page.url"
            v-if="page"
            :width="thumbnailWidth"
            :height="thumbnailHeight"/>

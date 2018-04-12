@@ -31,10 +31,7 @@
               </simple-button>
             </div>
             <div slot="content">
-              <ul>
-                <li><a href="#">npmjs.com</a></li>
-                <li><a href="#">github.com</a></li>
-              </ul>
+              <a href="#" @click="savePdf">npmjs.com</a>
             </div>
           </popover>
 
@@ -53,10 +50,9 @@
 
         <swiper :options="swiperOption">
           <swiper-slide v-for="page in pages"
-                        :key="page.fileName"
-                        :style="getCarouselSlideStyle(page)"
-                        @click="activePage = page">
-            <img :src="page.fileName">
+                        :key="page.id"
+                        :style="getCarouselSlideStyle(page)">
+            <img :src="page.url" @click="activePageId = page.id">
           </swiper-slide>
 
           <div class="swiper-pagination" slot="pagination"></div>
@@ -72,16 +68,15 @@
 
 <script>
   import scanner from '../services/scanner'
-  import events from '../services/event-bus'
   import ScannerButton from './ScannerSelection/ScannerButton'
   import ScannerInfo from './Scanner/ScannerInfo'
   import ScannerPage from './Scanner/ScannerPage'
   import ScannerConfigDialog from './Scanner/ScannerConfigDialog'
   import {SlideYDownTransition} from 'vue2-transitions'
-  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../scanners/scanners-mutations'
-  import _ from 'lodash'
+  import {SET_SCANNER_CONFIG} from '../scanners/scanners-mutations'
   import SimpleButton from './SimpleButton.vue'
   import popover from 'vue-popover'
+  import {mapGetters, mapState} from 'vuex'
 
   export default {
     name: 'scanner',
@@ -95,10 +90,8 @@
 
     data: function () {
       return {
-        // carouselVisible: false,
-        pages: [],
-        activePage: null,
-        // scanner: {}
+        activePageId: null,
+
         swiperOption: {
           slidesPerView: 'auto',
           spaceBetween: 0,
@@ -140,12 +133,16 @@
         return {
           width: width + 'px'
         }
+      },
+
+      savePdf: function () {
+        this.$store.dispatch('session/saveAsPdf')
       }
     },
 
     created: function () {
       //todo move to service
-      this.$store.commit(SET_SCANNER_CONFIG, {
+      this.$store.commit(`scanners/${SET_SCANNER_CONFIG}`, {
         scannerId: this.scanner.id,
         config: {
           resolution: this.scanner.capabilities.resolutions.find((r) => {
@@ -157,53 +154,57 @@
         }
       })
 
-
-      events.on("scan-progress", (event) => {
-        let page = this.pages.find((p) => p.pageId == event.pageId)
-        if (page) {
-          this.activePage = page
-        }
-        else {
-          this.activePage = _.extend({}, this.activePage, {
-            pageId: event.pageId,
-            width: this.scanner.capabilities.maxWidth,
-            height: this.scanner.capabilities.maxHeight,
-            fileName: null
-          })
-          this.pages.push(this.activePage)
-        }
-
-        this.activePage.fileName = `${event.fileName}?anticache=${new Date().getTime()}`
-      })
+      if (this.pages.length) {
+        this.activePageId = this.pages[0].id
+      }
     },
 
     computed: {
+      ...mapGetters({
+        getScannerById: 'scanners/getScannerById',
+        getPageById: 'session/getPageById'
+      }),
+
+      ...mapState({
+        pages: state => state.session.pages,
+      }),
+
       isScanning: function () {
         return this.scanner.status == scanner.Status.SCANNING
       },
 
       scanner: function () {
-        return this.$store.getters.getScannerById(this.scannerId)
+        return this.getScannerById(this.scannerId)
       },
 
       pagePreviewClassObject: function () {
         return {
           "with-carousel": this.carouselVisible
         }
-
       },
 
       carouselClassObject: function () {
         return {
           "visible": this.carouselVisible
         }
-
       },
 
       carouselVisible: function () {
         return this.pages.length > 1
       },
 
+      activePage: function () {
+        return this.activePageId ? this.getPageById(this.activePageId) : null
+      }
+
+    },
+
+    watch: {
+      pages: function (newPages) {
+        if (newPages.length) {
+          this.activePageId = newPages[newPages.length - 1].id
+        }
+      }
     }
 
   }

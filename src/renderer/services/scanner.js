@@ -3,13 +3,11 @@ import axios from 'axios'
 import xml2js from 'xml2js'
 import log from 'electron-log'
 import CapabilitiesReader from './_capabilities-reader'
-import scannersStore from '../scanners/scanners-store'
 import {NEW_SCANNER, SCANNER_UPDATED} from '../scanners/scanners-mutations'
-import events from "../services/event-bus"
-import fileStorage from './file-storage'
 import fs from 'fs'
 import request from 'request'
 import progress from 'request-progress'
+import store from '../store/store'
 
 let Status = {
   PENDING: 1,
@@ -20,7 +18,6 @@ let Status = {
 
 let scannerNextId = 42
 let scanners = []
-let pageNextId = 42
 
 let Scanner = function (name, address, host, port) {
   this.name = name
@@ -105,7 +102,7 @@ let Scanner = function (name, address, host, port) {
                 readCapabilities(result)
               }
 
-              scannersStore.commit(SCANNER_UPDATED, {
+              store.commit(`scanners/${SCANNER_UPDATED}`, {
                 scannerId: this.id,
                 changeSet: {
                   status: this.status,
@@ -119,7 +116,7 @@ let Scanner = function (name, address, host, port) {
         log.error(`failed to get capabilities of ${this.name} at ${this.address}`, error)
 
         this.status = Status.FAILED
-        scannersStore.commit(SCANNER_UPDATED, {
+        store.commit(`scanners/${SCANNER_UPDATED}`, {
           scannerId: this.id,
           changeSet: {
             status: this.status
@@ -192,7 +189,7 @@ export default {
 // }, 10000)
 
 
-scannersStore.commit(NEW_SCANNER, {
+store.commit(`scanners/${NEW_SCANNER}`, {
   name: 'Cannon TS9080 Series',
   address: '192.168.1.1',
   status: Status.PENDING,
@@ -201,7 +198,7 @@ scannersStore.commit(NEW_SCANNER, {
   config: {}
 })
 
-scannersStore.commit(NEW_SCANNER, {
+store.commit(`scanners/${NEW_SCANNER}`, {
   name: 'Cannon PIXMA MG7550 Series - For Tests',
   address: '192.168.1.170',
   status: Status.READY,
@@ -241,80 +238,84 @@ scannersStore.commit(NEW_SCANNER, {
   config: {},
   startScanning: function () {
     this.status = Status.SCANNING
-    scannersStore.commit(SCANNER_UPDATED, {
+    store.commit(`scanners/${SCANNER_UPDATED}`, {
       scannerId: this.id,
       changeSet: {
         status: this.status
       }
     })
 
-    let pageId = pageNextId++
-    let fileName = fileStorage.createNewFile()
+    store.dispatch('session/createNewPage', {
+          width: this.capabilities.maxWidth,
+          height: this.capabilities.maxHeight
+        }
+    ).then((page) => {
 
-    console.log(`new file ${fileName}`)
+      console.log(`new file ${page.fileName}`)
 
-    progress(request('https://picsum.photos/1500/2064/?random'), {
-      // throttle: 100,                    // Throttle the progress event to 2000ms, defaults to 1000ms
-      // delay: 1000,                       // Only start to emit after 1000ms delay, defaults to 0ms
-      // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
+      progress(request('https://picsum.photos/1500/2064/?random'), {
+        // throttle: 100,                    // Throttle the progress event to 2000ms, defaults to 1000ms
+        // delay: 1000,                       // Only start to emit after 1000ms delay, defaults to 0ms
+        // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
+      })
+          .on('progress', (state) => {
+            // The state is an object that looks like this:
+            // {
+            //     percent: 0.5,               // Overall percent (between 0 to 1)
+            //     speed: 554732,              // The download speed in bytes/sec
+            //     size: {
+            //         total: 90044871,        // The total payload size in bytes
+            //         transferred: 27610959   // The transferred payload size in bytes
+            //     },
+            //     time: {
+            //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
+            //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
+            //     }
+            // }
+            console.log('progress', state)
+
+            store.dispatch('session/updatePageProgress', {
+                  pageId: page.id,
+                  percent: state.percent * 100
+                }
+            )
+          })
+          .on('error', (err) => {
+            console.log('error')
+            console.log(err)
+
+            this.status = Status.FAILED
+            store.commit(`scanners/${SCANNER_UPDATED}`, {
+              scannerId: this.id,
+              changeSet: {
+                status: this.status
+              }
+            })
+          })
+          .on('end', () => {
+            console.log('progress end')
+
+            store.dispatch('session/updatePageProgress', {
+                  pageId: page.id,
+                  percent: 100
+                }
+            )
+
+            this.status = Status.READY
+            store.commit(`scanners/${SCANNER_UPDATED}`, {
+              scannerId: this.id,
+              changeSet: {
+                status: this.status
+              }
+            })
+          })
+
+          .pipe(fs.createWriteStream(page.fileName))
     })
-        .on('progress', (state) => {
-          // The state is an object that looks like this:
-          // {
-          //     percent: 0.5,               // Overall percent (between 0 to 1)
-          //     speed: 554732,              // The download speed in bytes/sec
-          //     size: {
-          //         total: 90044871,        // The total payload size in bytes
-          //         transferred: 27610959   // The transferred payload size in bytes
-          //     },
-          //     time: {
-          //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
-          //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
-          //     }
-          // }
-          console.log('progress', state)
-
-          events.emit("scan-progress", {
-            pageId: pageId,
-            fileName: `file:///${fileName}`,
-            percent: state.percent * 100
-          })
-        })
-        .on('error', (err) => {
-          console.log('error')
-          console.log(err)
-
-          this.status = Status.FAILED
-          scannersStore.commit(SCANNER_UPDATED, {
-            scannerId: this.id,
-            changeSet: {
-              status: this.status
-            }
-          })
-        })
-        .on('end', () => {
-          console.log('progress end')
-
-          events.emit("scan-progress", {
-            pageId: pageId,
-            fileName: `file:///${fileName}`,
-            percent: 100
-          })
-
-          this.status = Status.READY
-          scannersStore.commit(SCANNER_UPDATED, {
-            scannerId: this.id,
-            changeSet: {
-              status: this.status
-            }
-          })
-        })
-        .pipe(fs.createWriteStream(fileName))
-
   }
 })
 
-scannersStore.commit(NEW_SCANNER, {
+store.commit(`scanners/${NEW_SCANNER}`, {
   name: 'HP Test Connection Scanner New Generation',
   address: '192.168.45.170',
   status: Status.FAILED,
@@ -323,7 +324,7 @@ scannersStore.commit(NEW_SCANNER, {
   config: {}
 })
 
-scannersStore.commit(NEW_SCANNER, {
+store.commit(`scanners/${NEW_SCANNER}`, {
   name: 'Cannon TS6000 Series',
   address: 'companthost',
   status: Status.PENDING,

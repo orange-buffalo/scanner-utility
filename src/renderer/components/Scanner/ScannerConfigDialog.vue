@@ -18,7 +18,7 @@
         <span>Color Mode</span>
       </div>
       <div class="col-6">
-         <v-select v-model="selectedColorMode"
+        <v-select v-model="selectedColorMode"
                   :options="scanner.capabilities.colorModes"
                   :close-on-select="true"
                   :allowEmpty="false"
@@ -35,18 +35,19 @@
 
 <script>
 
-  import {NEW_SCANNER, SET_SCANNER_CONFIG} from '../../scanners/scanners-mutations'
+  import {SET_SCANNER_CONFIG} from '../../scanners/scanners-mutations'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: 'scanner-config-dialog',
     props: ['scannerId'],
 
-    data: function() {
+    data: function () {
       return {
-      selectedResolution: null,
-          selectedColorMode: null
+        selectedResolution: null,
+        selectedColorMode: null
       }
-    }                        ,
+    },
 
     created: function () {
       this.selectedResolution = this.scanner.config.resolution
@@ -55,7 +56,7 @@
 
     methods: {
       onResolutionSelect: function (selectedOption) {
-        this.$store.commit(SET_SCANNER_CONFIG, {
+        this.$store.commit(`scanners/${SET_SCANNER_CONFIG}`, {
           scannerId: this.scannerId,
           config: {
             ...this.scanner.config,
@@ -65,7 +66,7 @@
       },
 
       onColorModeSelect: function (selectedOption) {
-        this.$store.commit(SET_SCANNER_CONFIG, {
+        this.$store.commit(`scanners/${SET_SCANNER_CONFIG}`, {
           scannerId: this.scannerId,
           config: {
             ...this.scanner.config,
@@ -75,17 +76,21 @@
       },
 
       getResolutionLabel: function (resolution) {
-         return  `${resolution.value}dpi` + (resolution.isDefault ? ' (default)' : '');
+        return `${resolution.value}dpi` + (resolution.isDefault ? ' (default)' : '')
       },
 
       getColorModeLabel: function (colorMode) {
-         return  `${colorMode.name}` + (colorMode.isDefault ? ' (default)' : '');
+        return `${colorMode.name}` + (colorMode.isDefault ? ' (default)' : '')
       }
     },
 
     computed: {
-        scanner: function () {
-        return this.$store.getters.getScannerById(this.scannerId)
+      ...mapGetters({
+        getScannerById: 'scanners/getScannerById'
+      }),
+
+      scanner: function () {
+        return this.getScannerById(this.scannerId)
       }
     }
   }
