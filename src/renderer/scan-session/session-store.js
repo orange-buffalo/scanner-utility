@@ -1,6 +1,6 @@
 import {CREATE_NEW_PAGE, SAVE_AS_PDF, UPDATE_PAGE_PROGRESS} from './session-mutations'
 
-const {app} = require('electron').remote
+const {app, dialog, getCurrentWindow} = require('electron').remote
 import fs from 'fs'
 import PDFDocument from 'pdfkit'
 
@@ -77,17 +77,24 @@ let sessionStore = {
     },
 
     saveAsPdf(context) {
-      let doc = new PDFDocument({autoFirstPage: false})
+      let fileName = dialog.showSaveDialog(
+          getCurrentWindow(), {
+            filters: [{extensions: ['.pdf']}]
+          })
 
-      doc.pipe(fs.createWriteStream('/home/orange-buffalo/Downloads/test.pdf'))
+      if (fileName) {
+        let doc = new PDFDocument({autoFirstPage: false})
 
-      context.state.pages.forEach((page) => {
-        doc.addPage({margin: 0, size: 'A4'})  // todo layout: 'landscape'
-            .image(page.fileName, 0, 0,
-                {width: doc.page.width, height: doc.page.height})
-      })
+        doc.pipe(fs.createWriteStream(fileName))
 
-      doc.end()
+        context.state.pages.forEach((page) => {
+          doc.addPage({margin: 0, size: 'A4'})  // todo layout: 'landscape'
+              .image(page.fileName, 0, 0,
+                  {width: doc.page.width, height: doc.page.height})
+        })
+
+        doc.end()
+      }
     }
   }
 }
