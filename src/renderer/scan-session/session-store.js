@@ -12,25 +12,14 @@ function createNewJpgFile() {
   return `${dir}/${new Date().getTime()}.jpg`
 }
 
-let pageNextId = 42
-
-class ScanPage {
-
-  constructor(width, height) {
-    this.id = pageNextId++
-    this.fileName = createNewJpgFile()
-    this.width = width
-    this.height = height
-    this.hasData = false
-    this._update(null)
-  }
-
-  _update = function (percentLoaded) {
-    this.percentLoaded = percentLoaded
-    this.url = `file:///${this.fileName}?nocache=${new Date().getMilliseconds()}`
-  }
-
+function updatePage(page, percentLoaded) {
+  page.percentLoaded = percentLoaded
+  page.url = `file:///${page.fileName}?nocache=${new Date().getMilliseconds()}`
+  page.hasData = true
+  page.ready = percentLoaded == 100
 }
+
+let pageNextId = 42
 
 let sessionStore = {
   state: {
@@ -43,7 +32,7 @@ let sessionStore = {
     },
 
     [UPDATE_PAGE_PROGRESS](state, payload) {
-      payload.page._update(payload.percent)
+      updatePage(payload.page, payload.percent)
     },
 
     [SAVE_AS_PDF](state, payload) {
@@ -63,7 +52,15 @@ let sessionStore = {
   actions: {
     createNewPage(context, payload) {
       return new Promise((resolve) => {
-        let scanPage = new ScanPage(payload.width, payload.height)
+        let scanPage = {
+          id: pageNextId++,
+          fileName: createNewJpgFile(),
+          width: payload.width,
+          height: payload.height,
+          hasData: false,
+          ready: false,
+        }
+        updatePage(scanPage, null)
         context.commit(CREATE_NEW_PAGE, scanPage)
         resolve(scanPage)
       })
