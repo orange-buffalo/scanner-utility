@@ -45,22 +45,9 @@
         </scanner-page>
       </div>
 
-      <div class="carousel"
-           :class="carouselClassObject">
-
-        <swiper :options="swiperOption">
-          <swiper-slide v-for="page in pages"
-                        :key="page.id"
-                        :style="getCarouselSlideStyle(page)">
-            <img :src="page.url" @click="activePageId = page.id">
-          </swiper-slide>
-
-          <div class="swiper-pagination" slot="pagination"></div>
-          <div class="swiper-button-prev" slot="button-prev"></div>
-          <div class="swiper-button-next" slot="button-next"></div>
-        </swiper>
-
-      </div>
+      <pages-carousel :class="carouselClassObject"
+                      v-model="activePageId">
+      </pages-carousel>
     </div>
 
   </slide-y-down-transition>
@@ -75,33 +62,19 @@
   import SimpleButton from './SimpleButton.vue'
   import popover from 'vue-popover'
   import {mapGetters, mapState, mapActions} from 'vuex'
+  import PagesCarousel from './Scanner/PagesCarousel'
 
   export default {
     name: 'scanner',
 
     components: {
       SimpleButton, ScannerButton, SlideYDownTransition, ScannerInfo,
-      ScannerConfigDialog, ScannerPage, popover
+      ScannerConfigDialog, ScannerPage, popover, PagesCarousel
     },
 
     data: function () {
       return {
-        activePageId: null,
-
-        swiperOption: {
-          slidesPerView: 'auto',
-          spaceBetween: 0,
-          centeredSlides: true,
-          freeMode: true,
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true
-          },
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev'
-          },
-        }
+        activePageId: null
       }
     },
 
@@ -121,13 +94,6 @@
 
       showConfigDialog: function () {
         this.$modal.show('scanner-config')
-      },
-
-      getCarouselSlideStyle: function (page) {
-        let width = 200.0 * page.width / page.height
-        return {
-          width: width + 'px'
-        }
       }
     },
 
@@ -173,7 +139,8 @@
 
       carouselClassObject: function () {
         return {
-          "visible": this.carouselVisible
+          "visible": this.carouselVisible,
+          "carousel": true
         }
       },
 
@@ -273,20 +240,6 @@
 
     &.visible {
       bottom: 0;
-    }
-
-    .swiper-container {
-      height: 100%;
-
-      .swiper-slide {
-        text-align: center;
-        padding: 5px 10px;
-
-        img {
-          max-width: 100%;
-          max-height: 100%;
-        }
-      }
     }
   }
 
