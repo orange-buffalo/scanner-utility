@@ -298,7 +298,7 @@ export let scannersStore = {
           }, {root: true}
       ).then((page) => {
 
-        console.log(`new file ${page.fileName}`)
+        log.info('starting scanning new page', page)
 
         progress(request({
           uri: 'https://picsum.photos/1500/2064/?random',
@@ -309,20 +309,7 @@ export let scannersStore = {
           // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
         })
             .on('progress', (state) => {
-              // The state is an object that looks like this:
-              // {
-              //     percent: 0.5,               // Overall percent (between 0 to 1)
-              //     speed: 554732,              // The download speed in bytes/sec
-              //     size: {
-              //         total: 90044871,        // The total payload size in bytes
-              //         transferred: 27610959   // The transferred payload size in bytes
-              //     },
-              //     time: {
-              //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
-              //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
-              //     }
-              // }
-              console.log('progress', state)
+              log.debug('scan progress', state)
 
               context.dispatch('session/updatePageProgress', {
                     pageId: page.id,
@@ -332,14 +319,15 @@ export let scannersStore = {
             })
 
             .on('error', (err) => {
-              console.log('error')
-              console.log(err)
+              log.error('error while communicating with scanner', scanner, err)
 
-              context.commit('failScanner', scanner)
+              context.dispatch('session/failPageScan', page, {root: true})
+
+              scanner.status = Status.READY
             })
 
             .on('end', () => {
-              console.log('progress end')
+              log.info('successfully scanned', page)
 
               context.dispatch('session/updatePageProgress', {
                     pageId: page.id,

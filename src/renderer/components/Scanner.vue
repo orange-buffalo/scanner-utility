@@ -59,6 +59,7 @@
   import popover from 'vue-popover'
   import {mapGetters, mapState, mapActions} from 'vuex'
   import PagesCarousel from './Scanner/PagesCarousel'
+  import Noty from 'noty'
 
   export default {
     name: 'scanner',
@@ -77,7 +78,8 @@
     methods: {
       ...mapActions({
         startScanning: 'scanners/startScanning',
-        saveAsPdf: 'session/saveAsPdf'
+        saveAsPdf: 'session/saveAsPdf',
+        deletePage: 'session/deletePage'
       }),
 
       openActionsPopover: function (e) {
@@ -114,6 +116,9 @@
 
       if (this.pages.length) {
         this.activePageId = this.pages[0].id
+      }
+      else {
+        this.activePageId = null
       }
     },
 
@@ -154,6 +159,24 @@
       pages: function (newPages) {
         if (newPages.length) {
           this.activePageId = newPages[newPages.length - 1].id
+        }
+        else {
+          this.activePageId = null
+        }
+      },
+
+      'activePage.error': function (error) {
+        if (this.activePage && error) {
+          new Noty({
+            text: 'Page scan failed :(',
+            type: 'error',
+            layout: 'bottomCenter',
+            timeout: 5000
+          }).show()
+
+          if (!this.activePage.hasData) {
+            this.deletePage(this.activePage)
+          }
         }
       }
     }

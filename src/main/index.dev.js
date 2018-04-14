@@ -10,6 +10,10 @@
 // Set environment for development
 process.env.NODE_ENV = 'development'
 
+import log from 'electron-log'
+
+log.transports.file.level = false
+
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: true })
 

@@ -74,7 +74,9 @@
 
     watch: {
       page: function (val) {
-        this.recalculatePageSize(val)
+        if (val) {
+          this.recalculatePageSize(val)
+        }
       }
     },
 

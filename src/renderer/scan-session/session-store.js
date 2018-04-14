@@ -39,8 +39,7 @@ let sessionStore = {
       // let scannerIndex = state.scanners.findIndex(scanner => scanner.id == payload.scannerId)
       // let scanner = state.scanners[scannerIndex]
       // scanner.config = payload.config
-    },
-
+    }
   },
 
   getters: {
@@ -59,6 +58,7 @@ let sessionStore = {
           height: payload.height,
           hasData: false,
           ready: false,
+          error: false
         }
         updatePage(scanPage, null)
         context.commit(CREATE_NEW_PAGE, scanPage)
@@ -92,6 +92,16 @@ let sessionStore = {
 
         doc.end()
       }
+    },
+
+    failPageScan(context, page) {
+      page.error = true
+      page.ready = true
+    },
+
+    deletePage(context, page) {
+      let index = context.state.pages.findIndex(p => page.id == p.id)
+      context.state.pages.splice(index, 1)
     }
   }
 }
