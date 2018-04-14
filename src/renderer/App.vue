@@ -23,8 +23,7 @@
 <style lang="scss">
   .app-content {
     box-sizing: border-box;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     position: fixed;
     top: 0;
     left: 0;
