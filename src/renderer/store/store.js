@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import scannersStore from '../scanners/scanners-store'
+import {scannersStore} from '../scanners/scanners-store'
 import sessionStore from '../scan-session/session-store'
 
 Vue.use(Vuex)

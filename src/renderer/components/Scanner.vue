@@ -1,6 +1,6 @@
 <template>
   <slide-y-down-transition>
-    <div class="wrapper">
+    <div class="wrapper" v-if="scanner">
       <div class="header grid-noGutter-noBottom-middle">
         <div class="col-6">
           <div class="back-button" @click="back">
@@ -8,19 +8,19 @@
           </div>
 
           <div class="scanner-info">
-            <scanner-info :scannerId="scanner.id"
+            <scanner-info :scanner="scanner"
                           @configChangeRequested="showConfigDialog"></scanner-info>
 
-            <scanner-config-dialog :scannerId="scanner.id"></scanner-config-dialog>
+            <scanner-config-dialog :scanner="scanner"></scanner-config-dialog>
           </div>
         </div>
 
         <div class="col-6">
           <simple-button class="scan-button"
-                         :disabled="isScanning"
+                         :disabled="scanner.isScanning"
                          @click="startScanning">
             <icon name="inbox"></icon>
-            {{isScanning ? 'Scanning...' : 'Scan'}}
+            {{scanner.isScanning ? 'Scanning...' : 'Scan'}}
           </simple-button>
 
           <popover name="actions" ref="actionsPopover">
@@ -31,7 +31,7 @@
               </simple-button>
             </div>
             <div slot="content">
-              <a href="#" @click="savePdf">npmjs.com</a>
+              <a href="#" @click="saveAsPdf">npmjs.com</a>
             </div>
           </popover>
 
@@ -67,16 +67,14 @@
 </template>
 
 <script>
-  import scanner from '../services/scanner'
   import ScannerButton from './ScannerSelection/ScannerButton'
   import ScannerInfo from './Scanner/ScannerInfo'
   import ScannerPage from './Scanner/ScannerPage'
   import ScannerConfigDialog from './Scanner/ScannerConfigDialog'
   import {SlideYDownTransition} from 'vue2-transitions'
-  import {SET_SCANNER_CONFIG} from '../scanners/scanners-mutations'
   import SimpleButton from './SimpleButton.vue'
   import popover from 'vue-popover'
-  import {mapGetters, mapState} from 'vuex'
+  import {mapGetters, mapState, mapActions} from 'vuex'
 
   export default {
     name: 'scanner',
@@ -85,8 +83,6 @@
       SimpleButton, ScannerButton, SlideYDownTransition, ScannerInfo,
       ScannerConfigDialog, ScannerPage, popover
     },
-
-    props: ['scannerId'],
 
     data: function () {
       return {
@@ -110,6 +106,11 @@
     },
 
     methods: {
+      ...mapActions({
+        startScanning: 'scanners/startScanning',
+        saveAsPdf: 'session/saveAsPdf'
+      }),
+
       openActionsPopover: function (e) {
         this.$refs.actionsPopover.onPopoverToggle(e)
       },
@@ -119,13 +120,7 @@
       },
 
       showConfigDialog: function () {
-        console.log('dialog shown')
         this.$modal.show('scanner-config')
-      },
-
-      startScanning: function () {
-        this.scanner.startScanning()
-
       },
 
       getCarouselSlideStyle: function (page) {
@@ -133,17 +128,18 @@
         return {
           width: width + 'px'
         }
-      },
-
-      savePdf: function () {
-        this.$store.dispatch('session/saveAsPdf')
       }
     },
 
     created: function () {
-      //todo move to service
-      this.$store.commit(`scanners/${SET_SCANNER_CONFIG}`, {
-        scannerId: this.scanner.id,
+      if (!this.scanner) {
+        this.$router.push('/')
+        return
+      }
+
+      //todo remove
+      this.$store.commit('scanners/updateScannerConfig', {
+        scanner: this.scanner,
         config: {
           resolution: this.scanner.capabilities.resolutions.find((r) => {
             return r.isDefault
@@ -161,21 +157,13 @@
 
     computed: {
       ...mapGetters({
-        getScannerById: 'scanners/getScannerById',
         getPageById: 'session/getPageById'
       }),
 
       ...mapState({
         pages: state => state.session.pages,
+        scanner: states => states.scanners.activeScanner
       }),
-
-      isScanning: function () {
-        return this.scanner.status == scanner.Status.SCANNING
-      },
-
-      scanner: function () {
-        return this.getScannerById(this.scannerId)
-      },
 
       pagePreviewClassObject: function () {
         return {

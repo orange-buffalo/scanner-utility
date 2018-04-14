@@ -5,8 +5,8 @@
     <div class="col">
       <span class="name">{{scanner.name}}</span><br/>
       <span class="address">at {{scanner.address}}</span>
-      <span class="status" v-if="!isReady">
-        <icon name="spinner" spin v-if="isPending"></icon>
+      <span class="status" v-if="!scanner.isReady">
+        <icon name="spinner" spin v-if="scanner.isPending"></icon>
         {{status}}
       </span>
     </div>
@@ -14,18 +14,23 @@
 </template>
 
 <script>
-  import scanners from '../../services/scanner'
-  import events from "../../services/event-bus"
+  import {mapActions} from 'vuex'
+  import {Status} from '../../scanners/scanners-store'
 
   export default {
     name: 'scanner-button',
-    props: {
-      scanner: {}
-    },
+
+    props: ['scanner'],
+
     methods: {
+      ...mapActions({
+        setActiveScanner: 'scanners/setActiveScanner'
+      }),
+
       navigateToScanner: function () {
-        if (this.scanner.status == scanners.Status.READY) {
-          this.$router.push({name: 'scanner', params: {scannerId: this.scanner.id}})
+        if (this.scanner.isReady) {
+          this.setActiveScanner(this.scanner)
+          this.$router.push({name: 'scanner'})
         }
       }
     },
@@ -33,33 +38,20 @@
     computed: {
       status: function () {
         switch (this.scanner.status) {
-          case scanners.Status.PENDING:
+          case Status.PENDING:
             return 'Pending'
-          case scanners.Status.FAILED:
+          case Status.FAILED:
             return 'Failed'
-          case scanners.Status.READY:
+          case Status.READY:
             return 'Ready'
         }
       },
 
-      isReady: function () {
-        return this.scanner.status == scanners.Status.READY
-      },
-
-      isPending: function () {
-        return this.scanner.status == scanners.Status.PENDING
-      },
-
-      isFailed: function () {
-        return this.scanner.status == scanners.Status.FAILED
-      }
-      ,
-
       classObject: function () {
         return {
-          ready: this.isReady,
-          failed: this.isFailed,
-          pending: this.isPending
+          ready: this.scanner.isReady,
+          failed: this.scanner.isFailed,
+          pending: this.scanner.isPending
         }
 
       }

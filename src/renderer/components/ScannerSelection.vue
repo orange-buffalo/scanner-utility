@@ -13,29 +13,40 @@
 </template>
 
 <script>
-  import scanner from "../services/scanner"
   import ScannerButton from "./ScannerSelection/ScannerButton"
   import {FadeTransition, SlideYUpTransition} from 'vue2-transitions'
   import _ from 'lodash'
+  import {mapState, mapActions} from 'vuex'
+  import {Status} from '../scanners/scanners-store'
 
   export default {
     name: 'scanner-selection',
 
     components: {ScannerButton, FadeTransition, SlideYUpTransition},
 
+    methods: {
+      ...mapActions({
+        startSearching: 'scanners/startSearching'
+      })
+    },
+
     created: function () {
-      // scanner.startSearching()
+      // this.startSearching()
     },
 
     computed: {
+      ...mapState({
+        unsortedScanners: state => state.scanners.scanners
+      }),
+
       scanners: function () {
-        return _.sortBy(this.$store.state.scanners.scanners, (s) => {
+        return _.sortBy(this.unsortedScanners, (s) => {
           switch (s.status) {
-            case scanner.Status.READY:
+            case Status.READY:
               return 1
-            case scanner.Status.PENDING:
+            case Status.PENDING:
               return 2
-            case scanner.Status.FAILED:
+            case Status.FAILED:
               return 3
           }
           return 42

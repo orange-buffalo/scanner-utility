@@ -13,25 +13,13 @@
 
 <script>
 
-  import { mapGetters } from 'vuex'
-
   export default {
     name: 'scanner-info',
-    props: ['scannerId'],
+    props: ['scanner'],
 
     methods: {
       configChangeRequested: function () {
         this.$emit('configChangeRequested')
-      }
-    },
-
-    computed: {
-      ...mapGetters({
-        getScannerById: 'scanners/getScannerById'
-      }),
-
-      scanner: function () {
-          return this.getScannerById(this.scannerId)
       }
     }
   }

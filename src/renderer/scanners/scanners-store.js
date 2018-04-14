@@ -1,32 +1,361 @@
-import {NEW_SCANNER, SET_SCANNER_CONFIG, SCANNER_UPDATED} from './scanners-mutations'
 import _ from 'lodash'
+import bonjour from 'bonjour'
+import axios from 'axios'
+import log from 'electron-log'
+import xml2js from 'xml2js'
+import CapabilitiesReader from './_capabilities-reader'
+import fs from 'fs'
+import request from 'request'
+import progress from 'request-progress'
 
-const scannersStore = {
+function readCapabilities(scanner, rawCapabilities, context) {
+  let capabilities = {
+    colorModes: [],
+    resolutions: []
+  }
+
+  if (new CapabilitiesReader(rawCapabilities, scanner)
+      .mandatoryElement('scan:ScannerCapabilities')
+      .mandatoryElement('scan:Platen')
+      .mandatoryElement('scan:PlatenInputCaps')
+      .mandatoryElement('scan:MaxWidth')
+      .readElement(text => capabilities.maxWidth = text)
+      .up()
+      .mandatoryElement('scan:MaxHeight')
+      .readElement(text => capabilities.maxHeight = text)
+      .up()
+      .mandatoryElement('scan:SettingProfiles')
+      .mandatoryElement('scan:SettingProfile')
+      .mandatoryElement('scan:ColorModes')
+      .mandatoryElements('scan:ColorMode')
+      .readElement((text, isDefault) => capabilities.colorModes.push({
+        name: text,
+        isDefault: isDefault
+      }))
+      .up()
+      .up()
+      .mandatoryElement('scan:SupportedResolutions')
+      .mandatoryElement('scan:DiscreteResolutions')
+      .mandatoryElements('scan:DiscreteResolution')
+      .forEach(discreteResolutionReader => {
+        discreteResolutionReader
+            .mandatoryElement('scan:XResolution')
+            .readElement((text, isDefault) => capabilities.resolutions.push({
+              value: text,
+              isDefault: isDefault
+            }))
+      })
+      .isValid()) {
+
+    context.commit('updateScannerCapabilities', {
+      scanner: scanner,
+      capabilities: capabilities
+    })
+
+    context.commit('updateScannerStatus', {
+      scanner: scanner,
+      status: Status.READY
+    })
+
+    context.commit('updateScannerConfig', {
+      scanner: scanner,
+      config: {
+        resolution: scanner.capabilities.resolutions.find((r) => {
+          return r.isDefault
+        }),
+        colorMode: scanner.capabilities.colorModes.find((cm) => {
+          return cm.isDefault
+        })
+      }
+    })
+
+    log.info('retrieved capabilities for scanner:', JSON.stringify(this))
+  }
+  else {
+    context.commit('failScanner', scanner)
+  }
+}
+
+let scannerNextId = 42
+
+export let Status = {
+  PENDING: 1,
+  FAILED: 2,
+  READY: 3,
+  SCANNING: 4
+}
+
+class Scanner {
+
+  constructor(service) {
+    this.name = service.txt.ty
+    this.address = service.addresses.join(', ')
+    this.status = Status.PENDING
+    this.id = scannerNextId++
+    this.config = {}
+    this.capabilities = {
+      colorModes: [],
+      resolutions: [],
+      maxWidth: null,
+      maxHeight: null
+    }
+    this._$http = axios.create({
+      baseURL: 'http://' + service.host + ':' + service.port + '/eSCL',
+      timeout: 20000
+    })
+  }
+
+  get isReady() {
+    return this.status == Status.READY
+  }
+
+  get isPending() {
+    return this.status == Status.PENDING
+  }
+
+  get isFailed() {
+    return this.status == Status.FAILED
+  }
+
+  get isScanning() {
+    return this.status == Status.SCANNING
+  }
+}
+
+// todo remove
+let defaultService = {
+  txt: {ty: 'test'},
+  addresses: []
+}
+
+export let scannersStore = {
   state: {
-    scanners: []
+    // scanners: [],
+    _searching: false,
+
+    activeScanner: null,
+
+    // todo remove
+    scanners: [
+      _.extend(new Scanner(defaultService), {
+        name: 'Cannon TS9080 Series',
+        address: '192.168.1.1',
+        status: Status.PENDING,
+        id: scannerNextId++,
+        capabilities: {},
+        config: {}
+      }),
+
+      _.extend(new Scanner(defaultService), {
+        name: 'Cannon PIXMA MG7550 Series - For Tests',
+        address: '192.168.1.170',
+        status: Status.READY,
+        id: scannerNextId++,
+        capabilities: {
+          maxWidth: 2550,
+          maxHeight: 3508,
+          colorModes: [
+            {
+              name: "RGB24",
+              isDefault: true
+            },
+            {
+              name: "Greyscale",
+              isDefault: false
+            }
+          ],
+          resolutions: [
+            {
+              value: "75",
+              isDefault: false
+            },
+            {
+              value: "100",
+              isDefault: false
+            },
+            {
+              value: "300",
+              isDefault: true
+            },
+            {
+              value: "600",
+              isDefault: false
+            }
+          ]
+        },
+        config: {}
+      }),
+
+      _.extend(new Scanner(defaultService), {
+        name: 'HP Test Connection Scanner New Generation',
+        address: '192.168.45.170',
+        status: Status.FAILED,
+        id: scannerNextId++,
+        capabilities: {},
+        config: {}
+      }),
+
+      _.extend(new Scanner(defaultService), {
+        name: 'Cannon TS6000 Series',
+        address: 'companthost',
+        status: Status.PENDING,
+        id: scannerNextId++,
+        capabilities: {},
+        config: {}
+      })
+    ]
   },
 
   mutations: {
-    [NEW_SCANNER](state, scanner) {
+    newScanner(state, scanner) {
       state.scanners.push(scanner)
     },
 
-    [SET_SCANNER_CONFIG](state, payload) {
-      let scannerIndex = state.scanners.findIndex(scanner => scanner.id == payload.scannerId)
-      let scanner = state.scanners[scannerIndex]
-      scanner.config = payload.config
+    startSearching(state) {
+      state._searching = true
     },
 
-    [SCANNER_UPDATED](state, payload) {
-      let scannerIndex = state.scanners.findIndex(scanner => scanner.id == payload.scannerId)
-      let scanner = state.scanners[scannerIndex]
-      _.assign(scanner, payload.changeSet)
+    updateScannerStatus(state, payload) {
+      payload.scanner.status = payload.status
+    },
+
+    updateScannerCapabilities(state, payload) {
+      payload.scanner.capabilities = payload.capabilities
+    },
+
+    failScanner(state, scanner) {
+      scanner.status = Status.FAILED
+    },
+
+    setActiveScanner(state, scanner) {
+      state.activeScanner = scanner
+    },
+
+    updateScannerConfig(state, payload) {
+      payload.scanner.config = _.extend({}, payload.scanner.config, payload.config)
     }
   },
 
   getters: {
     getScannerById: state => id => state.scanners.find(scanner => scanner.id == id)
+  },
+
+  actions: {
+    startSearching: function (context) {
+      if (!context.state._searching) {
+        bonjour().find({type: 'uscan'}, service => context.dispatch('addScanner', service))
+        context.commit('startSearching')
+      }
+    },
+
+    addScanner: function (context, service) {
+      log.info('new scan service became available', service)
+
+      let scanner = new Scanner(service)
+
+      context.commit('newScanner', scanner)
+
+      scanner._$http
+          .get('/ScannerCapabilities', {
+            responseType: 'text',
+          })
+          .then(response => {
+            xml2js.parseString(
+                response.data,
+                (error, result) => {
+                  if (error) {
+                    log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}`, error)
+
+                    context.commit('failScanner', scanner)
+                  }
+                  else {
+                    readCapabilities(scanner, result, context)
+                  }
+                }
+            )
+          })
+          .catch(error => {
+            log.error(`failed to get capabilities of ${scanner.name} at ${scanner.address}`, error)
+
+            context.commit('failScanner', scanner)
+          })
+    },
+
+    setActiveScanner: function (context, scanner) {
+      context.commit('setActiveScanner', scanner)
+    },
+
+    startScanning: function (context) {
+      let scanner = context.state.activeScanner
+      context.commit('updateScannerStatus', {
+        scanner: scanner,
+        status: Status.SCANNING
+      })
+
+      context.dispatch('session/createNewPage', {
+            width: scanner.capabilities.maxWidth,
+            height: scanner.capabilities.maxHeight
+          }, {root: true}
+      ).then((page) => {
+
+        console.log(`new file ${page.fileName}`)
+
+        progress(request('https://picsum.photos/1500/2064/?random'), {
+          // throttle: 100,                    // Throttle the progress event to 2000ms, defaults to 1000ms
+          // delay: 1000,                       // Only start to emit after 1000ms delay, defaults to 0ms
+          // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
+        })
+            .on('progress', (state) => {
+              // The state is an object that looks like this:
+              // {
+              //     percent: 0.5,               // Overall percent (between 0 to 1)
+              //     speed: 554732,              // The download speed in bytes/sec
+              //     size: {
+              //         total: 90044871,        // The total payload size in bytes
+              //         transferred: 27610959   // The transferred payload size in bytes
+              //     },
+              //     time: {
+              //         elapsed: 36.235,        // The total elapsed seconds since the start (3 decimals)
+              //         remaining: 81.403       // The remaining seconds to finish (3 decimals)
+              //     }
+              // }
+              console.log('progress', state)
+
+              context.dispatch('session/updatePageProgress', {
+                    pageId: page.id,
+                    percent: state.percent * 100
+                  }, {root: true}
+              )
+            })
+
+            .on('error', (err) => {
+              console.log('error')
+              console.log(err)
+
+              context.commit('failScanner', scanner)
+            })
+            .on('end', () => {
+              console.log('progress end')
+
+              context.dispatch('session/updatePageProgress', {
+                    pageId: page.id,
+                    percent: 100
+                  }, {root: true}
+              )
+
+              context.commit('updateScannerStatus', {
+                scanner: scanner,
+                status: Status.READY
+              })
+
+            })
+
+            .pipe(fs.createWriteStream(page.fileName))
+      })
+    },
+
+    updateScannerConfig(context, payload) {
+      context.commit('updateScannerConfig', payload)
+    }
   }
 }
-
-export default scannersStore

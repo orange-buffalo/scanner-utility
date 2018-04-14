@@ -35,12 +35,11 @@
 
 <script>
 
-  import {SET_SCANNER_CONFIG} from '../../scanners/scanners-mutations'
-  import {mapGetters} from 'vuex'
+  import {mapActions} from 'vuex'
 
   export default {
     name: 'scanner-config-dialog',
-    props: ['scannerId'],
+    props: ['scanner'],
 
     data: function () {
       return {
@@ -55,21 +54,23 @@
     },
 
     methods: {
+      ...mapActions({
+        saveConfig: 'scanners/updateScannerConfig'
+      }),
+
       onResolutionSelect: function (selectedOption) {
-        this.$store.commit(`scanners/${SET_SCANNER_CONFIG}`, {
-          scannerId: this.scannerId,
+        this.saveConfig({
+          scanner: this.scanner,
           config: {
-            ...this.scanner.config,
             resolution: selectedOption
           }
         })
       },
 
       onColorModeSelect: function (selectedOption) {
-        this.$store.commit(`scanners/${SET_SCANNER_CONFIG}`, {
-          scannerId: this.scannerId,
+        this.saveConfig({
+          scanner: this.scanner,
           config: {
-            ...this.scanner.config,
             colorMode: selectedOption
           }
         })
@@ -81,16 +82,6 @@
 
       getColorModeLabel: function (colorMode) {
         return `${colorMode.name}` + (colorMode.isDefault ? ' (default)' : '')
-      }
-    },
-
-    computed: {
-      ...mapGetters({
-        getScannerById: 'scanners/getScannerById'
-      }),
-
-      scanner: function () {
-        return this.getScannerById(this.scannerId)
       }
     }
   }
