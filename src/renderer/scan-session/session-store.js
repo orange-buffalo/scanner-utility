@@ -15,7 +15,7 @@ function createNewJpgFile() {
 function updatePage(page, percentLoaded) {
   page.percentLoaded = percentLoaded
   page.url = `file:///${page.fileName}?nocache=${new Date().getMilliseconds()}`
-  page.hasData = true
+  page.hasData = percentLoaded != null && percentLoaded > 0
   page.ready = percentLoaded == 100
 }
 

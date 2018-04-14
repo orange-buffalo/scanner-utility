@@ -1,56 +1,53 @@
 <template>
-  <slide-y-down-transition>
-    <div class="wrapper" v-if="scanner">
-      <div class="header grid-noGutter-noBottom-middle">
-        <div class="col-6">
-          <div class="back-button" @click="back">
-            <icon name="chevron-left" scale="2"/>
-          </div>
-
-          <div class="scanner-info">
-            <scanner-info :scanner="scanner"
-                          @configChangeRequested="showConfigDialog"></scanner-info>
-
-            <scanner-config-dialog :scanner="scanner"></scanner-config-dialog>
-          </div>
+  <div class="wrapper" v-if="scanner" :key="'scanner'">
+    <div class="header grid-noGutter-noBottom-middle">
+      <div class="col-6">
+        <div class="back-button" @click="back">
+          <icon name="chevron-left" scale="2"/>
         </div>
 
-        <div class="col-6">
-          <simple-button class="scan-button"
-                         :disabled="scanner.isScanning"
-                         @click="startScanning">
-            <icon name="inbox"></icon>
-            {{scanner.isScanning ? 'Scanning...' : 'Scan'}}
-          </simple-button>
+        <div class="scanner-info">
+          <scanner-info :scanner="scanner"
+                        @configChangeRequested="showConfigDialog"></scanner-info>
 
-          <popover name="actions" ref="actionsPopover">
-            <div slot="face">
-              <simple-button class="actions-button" @click="openActionsPopover">
-                <icon name="bars"></icon>
-                &nbsp;
-              </simple-button>
-            </div>
-            <div slot="content">
-              <a href="#" @click="saveAsPdf">npmjs.com</a>
-            </div>
-          </popover>
-
+          <scanner-config-dialog :scanner="scanner"></scanner-config-dialog>
         </div>
       </div>
 
-      <div class="page-preview"
-           :class="pagePreviewClassObject">
-        <scanner-page :page="activePage">
+      <div class="col-6">
+        <simple-button class="scan-button"
+                       :disabled="scanner.isScanning"
+                       @click="startScanning">
+          <icon name="inbox"></icon>
+          {{scanner.isScanning ? 'Scanning...' : 'Scan'}}
+        </simple-button>
 
-        </scanner-page>
+        <popover name="actions" ref="actionsPopover">
+          <div slot="face">
+            <simple-button class="actions-button" @click="openActionsPopover">
+              <icon name="bars"></icon>
+              &nbsp;
+            </simple-button>
+          </div>
+          <div slot="content">
+            <a href="#" @click="saveAsPdf">npmjs.com</a>
+          </div>
+        </popover>
+
       </div>
-
-      <pages-carousel :class="carouselClassObject"
-                      v-model="activePageId">
-      </pages-carousel>
     </div>
 
-  </slide-y-down-transition>
+    <div class="page-preview"
+         :class="pagePreviewClassObject">
+      <scanner-page :page="activePage">
+
+      </scanner-page>
+    </div>
+
+    <pages-carousel :class="carouselClassObject"
+                    v-model="activePageId">
+    </pages-carousel>
+  </div>
 </template>
 
 <script>
@@ -58,7 +55,6 @@
   import ScannerInfo from './Scanner/ScannerInfo'
   import ScannerPage from './Scanner/ScannerPage'
   import ScannerConfigDialog from './Scanner/ScannerConfigDialog'
-  import {SlideYDownTransition} from 'vue2-transitions'
   import SimpleButton from './SimpleButton.vue'
   import popover from 'vue-popover'
   import {mapGetters, mapState, mapActions} from 'vuex'
@@ -68,7 +64,7 @@
     name: 'scanner',
 
     components: {
-      SimpleButton, ScannerButton, SlideYDownTransition, ScannerInfo,
+      SimpleButton, ScannerButton, ScannerInfo,
       ScannerConfigDialog, ScannerPage, popover, PagesCarousel
     },
 

@@ -1,6 +1,8 @@
 <template>
   <div class="app-content">
-    <router-view></router-view>
+    <slide-y-down-transition mode="out-in">
+      <router-view></router-view>
+    </slide-y-down-transition>
 
     <div class="app-footer">
       <span>&copy; 2018</span>
@@ -9,8 +11,12 @@
 </template>
 
 <script>
+  import {SlideYDownTransition} from 'vue2-transitions'
+
   export default {
-    name: 'scanner-utility'
+    name: 'scanner-utility',
+
+    components: {SlideYDownTransition}
   }
 </script>
 

@@ -300,7 +300,10 @@ export let scannersStore = {
 
         console.log(`new file ${page.fileName}`)
 
-        progress(request('https://picsum.photos/1500/2064/?random'), {
+        progress(request({
+          uri: 'https://picsum.photos/1500/2064/?random',
+          timeout: 20000
+        }), {
           // throttle: 100,                    // Throttle the progress event to 2000ms, defaults to 1000ms
           // delay: 1000,                       // Only start to emit after 1000ms delay, defaults to 0ms
           // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
@@ -334,6 +337,7 @@ export let scannersStore = {
 
               context.commit('failScanner', scanner)
             })
+
             .on('end', () => {
               console.log('progress end')
 

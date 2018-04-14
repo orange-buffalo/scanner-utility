@@ -1,20 +1,18 @@
 <template>
-  <slide-y-up-transition>
-    <div class="content grid-3-middle-center">
-      <div class="col">
-        <fade-transition group tag="div">
-          <scanner-button v-for="scanner in scanners"
-                          :key="scanner.id"
-                          :scanner="scanner"/>
-        </fade-transition>
-      </div>
+  <div class="content grid-3-middle-center" :key="'scannerSelection'">
+    <div class="col">
+      <fade-transition group tag="div">
+        <scanner-button v-for="scanner in scanners"
+                        :key="scanner.id"
+                        :scanner="scanner"/>
+      </fade-transition>
     </div>
-  </slide-y-up-transition>
+  </div>
 </template>
 
 <script>
   import ScannerButton from "./ScannerSelection/ScannerButton"
-  import {FadeTransition, SlideYUpTransition} from 'vue2-transitions'
+  import {FadeTransition} from 'vue2-transitions'
   import _ from 'lodash'
   import {mapState, mapActions} from 'vuex'
   import {Status} from '../scanners/scanners-store'
@@ -22,7 +20,7 @@
   export default {
     name: 'scanner-selection',
 
-    components: {ScannerButton, FadeTransition, SlideYUpTransition},
+    components: {ScannerButton, FadeTransition},
 
     methods: {
       ...mapActions({
