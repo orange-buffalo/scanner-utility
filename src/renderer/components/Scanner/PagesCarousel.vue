@@ -4,10 +4,21 @@
       <swiper-slide v-for="page in pages"
                     :key="page.id"
                     :style="getCarouselSlideStyle(page)">
-        <img :src="page.url"
+        <div class="grid-middle-noGutter-noBottom"
              @click="selectPage(page)">
-      </swiper-slide>
+          <fade-transition>
+            <img :src="page.url"
+                 v-if="page.ready">
+          </fade-transition>
 
+          <fade-transition>
+            <div class="col"
+                 v-if="!page.ready">
+              <icon name="spinner" spin></icon>
+            </div>
+          </fade-transition>
+        </div>
+      </swiper-slide>
       <div class="swiper-button-prev" slot="button-prev"></div>
       <div class="swiper-button-next" slot="button-next"></div>
     </swiper>
@@ -16,9 +27,12 @@
 
 <script>
   import {mapState} from 'vuex'
+  import {FadeTransition} from 'vue2-transitions'
 
   export default {
     name: 'pages-carousel',
+
+    components: {FadeTransition},
 
     model: {
       prop: 'selectedPageId',
@@ -95,6 +109,10 @@
         img {
           max-width: 100%;
           max-height: 100%;
+        }
+
+        [class*="grid-"] {
+          height: 100%;
         }
       }
     }
