@@ -1,6 +1,6 @@
 <template>
   <div class="carousel">
-    <swiper :options="swiperOption" ref="swiper">
+    <swiper :options="swiperOption" ref="swiper" class="swiper-no-swiping">
       <swiper-slide v-for="page in pages"
                     :key="page.id"
                     :style="getCarouselSlideStyle(page)">
