@@ -1,6 +1,6 @@
 import log from 'electron-log'
 
-let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
+let CapabilitiesReader = function (rawCapabilities, scannerOptions, parent) {
   let elementsStack = [rawCapabilities];
   let valid = true;
 
@@ -23,7 +23,8 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
       let currentElement = elementsStack[elementsStack.length - 1];
       let requestedElement = currentElement[elementName];
       if (!requestedElement) {
-        log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}, missing element ${elementName} in `, JSON.stringify(rawCapabilities));
+        log.error(`failed to parse capabilities of ${scannerOptions.name} at ${scannerOptions.address}, missing element ${elementName} in `,
+            JSON.stringify(rawCapabilities));
 
         this._invalidate();
         return;
@@ -31,7 +32,7 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
 
       if (requestedElement instanceof Array) {
         if (requestedElement.length !== 1) {
-          log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}, element ${elementName} should be met exactly once in `,
+          log.error(`failed to parse capabilities of ${scannerOptions.name} at ${scannerOptions.address}, element ${elementName} should be met exactly once in `,
                JSON.stringify(rawCapabilities));
 
           this._invalidate();
@@ -50,7 +51,8 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
       let currentElement = elementsStack[elementsStack.length - 1];
       let requestedElement = currentElement[elementName];
       if (!requestedElement) {
-        log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}, missing element ${elementName} in `, JSON.stringify(rawCapabilities));
+        log.error(`failed to parse capabilities of ${scannerOptions.name} at ${scannerOptions.address}, missing element ${elementName} in `,
+            JSON.stringify(rawCapabilities));
 
         this._invalidate();
         return;
@@ -60,7 +62,7 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
         elementsStack.push(requestedElement);
       }
       else {
-        log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}, element ${elementName} should be an array in `,
+        log.error(`failed to parse capabilities of ${scannerOptions.name} at ${scannerOptions.address}, element ${elementName} should be an array in `,
              JSON.stringify(rawCapabilities));
 
         this._invalidate();
@@ -76,7 +78,7 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
       consumer(element._, element.$['scan:default'] == 'true')
     }
     else {
-      log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}, element ${element} is not a single text element in `,
+      log.error(`failed to parse capabilities of ${scannerOptions.name} at ${scannerOptions.address}, element ${element} is not a single text element in `,
            JSON.stringify(rawCapabilities));
 
       this._invalidate();
@@ -108,11 +110,11 @@ let CapabilitiesReader = function (rawCapabilities, scanner, parent) {
       let currentElement = elementsStack[elementsStack.length - 1];
       if (currentElement instanceof Array) {
         currentElement.forEach(element => {
-          consumer(new CapabilitiesReader(element, scanner))
+          consumer(new CapabilitiesReader(element, scannerOptions))
         })
       }
       else {
-        log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}, element ${currentElement} should be an array in `,
+        log.error(`failed to parse capabilities of ${scannerOptions.name} at ${scannerOptions.address}, element ${currentElement} should be an array in `,
              JSON.stringify(rawCapabilities));
 
         this._invalidate();

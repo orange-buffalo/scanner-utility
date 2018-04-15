@@ -15,7 +15,7 @@
 
 <script>
   import {mapActions} from 'vuex'
-  import {Status} from '../../scanners/scanners-store'
+  import {Status} from '../../scanners/scanner-api'
 
   export default {
     name: 'scanner-button',

@@ -15,7 +15,7 @@
   import {FadeTransition} from 'vue2-transitions'
   import _ from 'lodash'
   import {mapState, mapActions} from 'vuex'
-  import {Status} from '../scanners/scanners-store'
+  import {Status} from '../scanners/scanner-api'
 
   export default {
     name: 'scanner-selection',
@@ -29,7 +29,7 @@
     },
 
     created: function () {
-      // this.startSearching()
+      this.startSearching()
     },
 
     computed: {
