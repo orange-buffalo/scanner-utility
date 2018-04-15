@@ -1,5 +1,3 @@
-import {CREATE_NEW_PAGE, SAVE_AS_PDF, UPDATE_PAGE_PROGRESS} from './session-mutations'
-
 const {app, dialog, getCurrentWindow} = require('electron').remote
 import fs from 'fs'
 import PDFDocument from 'pdfkit'
@@ -26,22 +24,6 @@ let sessionStore = {
     pages: []
   },
 
-  mutations: {
-    [CREATE_NEW_PAGE](state, page) {
-      state.pages.push(page)
-    },
-
-    [UPDATE_PAGE_PROGRESS](state, payload) {
-      updatePage(payload.page, payload.percent)
-    },
-
-    [SAVE_AS_PDF](state, payload) {
-      // let scannerIndex = state.scanners.findIndex(scanner => scanner.id == payload.scannerId)
-      // let scanner = state.scanners[scannerIndex]
-      // scanner.config = payload.config
-    }
-  },
-
   getters: {
     getPageById: (state) => (id) => {
       return state.pages.find(page => page.id == id)
@@ -61,16 +43,13 @@ let sessionStore = {
           error: false
         }
         updatePage(scanPage, null)
-        context.commit(CREATE_NEW_PAGE, scanPage)
+        context.state.pages.push(scanPage)
         resolve(scanPage)
       })
     },
 
     updatePageProgress(context, payload) {
-      context.commit(UPDATE_PAGE_PROGRESS, {
-        page: context.getters.getPageById(payload.pageId),
-        percent: payload.percent
-      })
+      updatePage(context.getters.getPageById(payload.pageId), payload.percent)
     },
 
     saveAsPdf(context) {

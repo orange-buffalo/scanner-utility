@@ -59,20 +59,14 @@
       }),
 
       onResolutionSelect: function (selectedOption) {
-        this.saveConfig({
-          scanner: this.scanner,
-          config: {
-            resolution: selectedOption
-          }
+        this.saveConfig(this.scanner, {
+          resolution: selectedOption
         })
       },
 
       onColorModeSelect: function (selectedOption) {
-        this.saveConfig({
-          scanner: this.scanner,
-          config: {
-            colorMode: selectedOption
-          }
+        this.saveConfig(this.scanner, {
+          colorMode: selectedOption
         })
       },
 

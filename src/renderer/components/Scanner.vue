@@ -101,19 +101,6 @@
         return
       }
 
-      //todo remove
-      this.$store.commit('scanners/updateScannerConfig', {
-        scanner: this.scanner,
-        config: {
-          resolution: this.scanner.capabilities.resolutions.find((r) => {
-            return r.isDefault
-          }),
-          colorMode: this.scanner.capabilities.colorModes.find((cm) => {
-            return cm.isDefault
-          })
-        }
-      })
-
       if (this.pages.length) {
         this.activePageId = this.pages[0].id
       }

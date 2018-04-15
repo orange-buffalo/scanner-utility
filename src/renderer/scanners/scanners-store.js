@@ -47,32 +47,22 @@ function readCapabilities(scanner, rawCapabilities, context) {
       })
       .isValid()) {
 
-    context.commit('updateScannerCapabilities', {
-      scanner: scanner,
-      capabilities: capabilities
-    })
+    scanner.capabilities = _.extend({}, scanner.capabilities, capabilities)
+    scanner.status = Status.READY
 
-    context.commit('updateScannerStatus', {
-      scanner: scanner,
-      status: Status.READY
-    })
-
-    context.commit('updateScannerConfig', {
-      scanner: scanner,
-      config: {
-        resolution: scanner.capabilities.resolutions.find((r) => {
-          return r.isDefault
-        }),
-        colorMode: scanner.capabilities.colorModes.find((cm) => {
-          return cm.isDefault
-        })
-      }
+    updateScannerConfig(scanner, {
+      resolution: scanner.capabilities.resolutions.find((r) => {
+        return r.isDefault
+      }),
+      colorMode: scanner.capabilities.colorModes.find((cm) => {
+        return cm.isDefault
+      })
     })
 
     log.info('retrieved capabilities for scanner:', JSON.stringify(this))
   }
   else {
-    context.commit('failScanner', scanner)
+    scanner.status = Status.FAILED
   }
 }
 
@@ -126,6 +116,10 @@ class Scanner {
 let defaultService = {
   txt: {ty: 'test'},
   addresses: []
+}
+
+function updateScannerConfig(scanner, newConfig) {
+  scanner.config = _.extend({}, scanner.config, newConfig)
 }
 
 export let scannersStore = {
@@ -206,36 +200,6 @@ export let scannersStore = {
     ]
   },
 
-  mutations: {
-    newScanner(state, scanner) {
-      state.scanners.push(scanner)
-    },
-
-    startSearching(state) {
-      state._searching = true
-    },
-
-    updateScannerStatus(state, payload) {
-      payload.scanner.status = payload.status
-    },
-
-    updateScannerCapabilities(state, payload) {
-      payload.scanner.capabilities = payload.capabilities
-    },
-
-    failScanner(state, scanner) {
-      scanner.status = Status.FAILED
-    },
-
-    setActiveScanner(state, scanner) {
-      state.activeScanner = scanner
-    },
-
-    updateScannerConfig(state, payload) {
-      payload.scanner.config = _.extend({}, payload.scanner.config, payload.config)
-    }
-  },
-
   getters: {
     getScannerById: state => id => state.scanners.find(scanner => scanner.id == id)
   },
@@ -244,7 +208,7 @@ export let scannersStore = {
     startSearching: function (context) {
       if (!context.state._searching) {
         bonjour().find({type: 'uscan'}, service => context.dispatch('addScanner', service))
-        context.commit('startSearching')
+        context.state._searching = true
       }
     },
 
@@ -253,7 +217,7 @@ export let scannersStore = {
 
       let scanner = new Scanner(service)
 
-      context.commit('newScanner', scanner)
+      context.state.scanners.push(scanner)
 
       scanner._$http
           .get('/ScannerCapabilities', {
@@ -266,7 +230,7 @@ export let scannersStore = {
                   if (error) {
                     log.error(`failed to parse capabilities of ${scanner.name} at ${scanner.address}`, error)
 
-                    context.commit('failScanner', scanner)
+                    scanner.status = Status.FAILED
                   }
                   else {
                     readCapabilities(scanner, result, context)
@@ -277,20 +241,17 @@ export let scannersStore = {
           .catch(error => {
             log.error(`failed to get capabilities of ${scanner.name} at ${scanner.address}`, error)
 
-            context.commit('failScanner', scanner)
+            scanner.status = Status.FAILED
           })
     },
 
     setActiveScanner: function (context, scanner) {
-      context.commit('setActiveScanner', scanner)
+      context.state.activeScanner = scanner
     },
 
     startScanning: function (context) {
       let scanner = context.state.activeScanner
-      context.commit('updateScannerStatus', {
-        scanner: scanner,
-        status: Status.SCANNING
-      })
+      scanner.status = Status.SCANNING
 
       context.dispatch('session/createNewPage', {
             width: scanner.capabilities.maxWidth,
@@ -335,19 +296,15 @@ export let scannersStore = {
                   }, {root: true}
               )
 
-              context.commit('updateScannerStatus', {
-                scanner: scanner,
-                status: Status.READY
-              })
-
+              scanner.status = Status.READY
             })
 
             .pipe(fs.createWriteStream(page.fileName))
       })
     },
 
-    updateScannerConfig(context, payload) {
-      context.commit('updateScannerConfig', payload)
+    updateScannerConfig(context, scanner, newConfig) {
+      updateScannerConfig(scanner, newConfig)
     }
   }
 }
