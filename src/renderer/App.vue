@@ -1,7 +1,7 @@
 <template>
   <div class="app-content">
     <slide-y-down-transition mode="out-in">
-      <router-view></router-view>
+      <router-view :key="$router.fullPath"></router-view>
     </slide-y-down-transition>
 
     <div class="app-footer">

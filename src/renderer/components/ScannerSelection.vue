@@ -1,10 +1,10 @@
 <template>
-  <div class="content grid-3-middle-center" :key="'scannerSelection'">
+  <div class="content grid-3-middle-center">
     <div class="col">
       <fade-transition group tag="div">
         <scanner-button v-for="scanner in scanners"
                         :key="scanner.id"
-                        :scanner="scanner"/>
+                        :scanner-id="scanner.id"/>
       </fade-transition>
     </div>
   </div>
@@ -40,6 +40,8 @@
       scanners: function () {
         return _.sortBy(this.unsortedScanners, (s) => {
           switch (s.status) {
+            case Status.SCANNING:
+              return 0
             case Status.READY:
               return 1
             case Status.PENDING:
@@ -51,7 +53,6 @@
         })
       }
     }
-
   }
 </script>
 

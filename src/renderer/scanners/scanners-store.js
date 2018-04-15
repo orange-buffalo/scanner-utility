@@ -99,8 +99,8 @@ export let scannersStore = {
       }
     },
 
-    setActiveScanner: function (context, scanner) {
-      context.state.activeScanner = scanner
+    setActiveScanner: function (context, scannerId) {
+      context.state.activeScanner = context.getters.getScannerById(scannerId)
     },
 
     startScanning: function (context) {
@@ -151,8 +151,9 @@ export let scannersStore = {
       })
     },
 
-    updateScannerConfig(context, scanner, newConfig) {
-      updateScannerConfig(scanner, newConfig)
+    updateScannerConfig(context, request) {
+      let scanner = context.getters.getScannerById(request.scannerId)
+      updateScannerConfig(scanner, request.newConfig)
     }
   }
 }

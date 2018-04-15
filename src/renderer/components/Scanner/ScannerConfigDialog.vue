@@ -9,9 +9,9 @@
         <v-select v-model="selectedResolution"
                   :options="scanner.capabilities.resolutions"
                   :close-on-select="true"
-                  :allowEmpty="false"
+                  :allow-empty="false"
                   @select="onResolutionSelect"
-                  :customLabel="getResolutionLabel"></v-select>
+                  :custom-label="getResolutionLabel"></v-select>
       </div>
 
       <div class="col-6">
@@ -21,9 +21,9 @@
         <v-select v-model="selectedColorMode"
                   :options="scanner.capabilities.colorModes"
                   :close-on-select="true"
-                  :allowEmpty="false"
+                  :allow-empty="false"
                   @select="onColorModeSelect"
-                  :customLabel="getColorModeLabel"></v-select>
+                  :custom-label="getColorModeLabel"></v-select>
       </div>
     </div>
 
@@ -35,11 +35,11 @@
 
 <script>
 
-  import {mapActions} from 'vuex'
+  import {mapActions, mapGetters} from 'vuex'
 
   export default {
     name: 'scanner-config-dialog',
-    props: ['scanner'],
+    props: ['scannerId'],
 
     data: function () {
       return {
@@ -59,14 +59,20 @@
       }),
 
       onResolutionSelect: function (selectedOption) {
-        this.saveConfig(this.scanner, {
-          resolution: selectedOption
+        this.saveConfig({
+          scannerId: this.scannerId,
+          newConfig: {
+            resolution: selectedOption
+          }
         })
       },
 
       onColorModeSelect: function (selectedOption) {
-        this.saveConfig(this.scanner, {
-          colorMode: selectedOption
+        this.saveConfig({
+          scannerId: this.scannerId,
+          newConfig: {
+            colorMode: selectedOption
+          }
         })
       },
 
@@ -76,6 +82,16 @@
 
       getColorModeLabel: function (colorMode) {
         return `${colorMode.name}` + (colorMode.isDefault ? ' (default)' : '')
+      }
+    },
+
+    computed: {
+      ...mapGetters({
+        getScannerById: 'scanners/getScannerById'
+      }),
+
+      scanner: function () {
+        return this.getScannerById(this.scannerId)
       }
     }
   }

@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" v-if="scanner" :key="'scanner'">
+  <div class="wrapper" v-if="scanner">
     <div class="header grid-noGutter-noBottom-middle">
       <div class="col-6">
         <div class="back-button" @click="back">
@@ -7,10 +7,10 @@
         </div>
 
         <div class="scanner-info">
-          <scanner-info :scanner="scanner"
-                        @configChangeRequested="showConfigDialog"></scanner-info>
+          <scanner-info :scanner-id="scanner.id"
+                        @config-change-requested="showConfigDialog"></scanner-info>
 
-          <scanner-config-dialog :scanner="scanner"></scanner-config-dialog>
+          <scanner-config-dialog :scanner-id="scanner.id"></scanner-config-dialog>
         </div>
       </div>
 
@@ -101,12 +101,7 @@
         return
       }
 
-      if (this.pages.length) {
-        this.activePageId = this.pages[0].id
-      }
-      else {
-        this.activePageId = null
-      }
+      this.activePageId = this.pages.length ? this.pages[this.pages.length - 1].id : null
     },
 
     computed: {
@@ -139,17 +134,11 @@
       activePage: function () {
         return this.activePageId ? this.getPageById(this.activePageId) : null
       }
-
     },
 
     watch: {
       pages: function (newPages) {
-        if (newPages.length) {
-          this.activePageId = newPages[newPages.length - 1].id
-        }
-        else {
-          this.activePageId = null
-        }
+        this.activePageId = newPages.length ? newPages[newPages.length - 1].id : null
       },
 
       'activePage.error': function (error) {
@@ -167,7 +156,6 @@
         }
       }
     }
-
   }
 </script>
 
@@ -248,6 +236,4 @@
       bottom: 0;
     }
   }
-
-
 </style>

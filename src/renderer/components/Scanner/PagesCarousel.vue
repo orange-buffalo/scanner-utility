@@ -35,8 +35,8 @@
     components: {FadeTransition},
 
     model: {
-      prop: 'selectedPageId',
-      event: 'selectPage'
+      prop: 'selected-page-id',
+      event: 'select-page'
     },
 
     props: ['selectedPageId'],
@@ -69,7 +69,7 @@
 
     methods: {
       selectPage: function (page) {
-        this.$emit('selectPage', page.id)
+        this.$emit('select-page', page.id)
       },
 
       getCarouselSlideStyle: function (page) {

@@ -25,9 +25,7 @@ let sessionStore = {
   },
 
   getters: {
-    getPageById: (state) => (id) => {
-      return state.pages.find(page => page.id == id)
-    }
+    getPageById: state => id => state.pages.find(page => page.id == id)
   },
 
   actions: {

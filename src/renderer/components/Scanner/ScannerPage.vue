@@ -78,9 +78,7 @@
           this.recalculatePageSize(val)
         }
       }
-    },
-
-    computed: {}
+    }
   }
 </script>
 
@@ -106,7 +104,5 @@
       left: 0;
       right: 0;
     }
-
   }
-
 </style>

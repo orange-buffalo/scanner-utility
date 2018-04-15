@@ -5,7 +5,7 @@
       <br/>
       <span class="scanner-config"
             @click.stop="configChangeRequested">
-        {{scanner.config.resolution.value}}dpi / {{this.scanner.config.colorMode.name}}
+        {{scanner.config.resolution.value}}dpi / {{scanner.config.colorMode.name}}
       </span>
     </div>
   </div>
@@ -13,13 +13,26 @@
 
 <script>
 
+  import {mapGetters} from 'vuex'
+
   export default {
     name: 'scanner-info',
-    props: ['scanner'],
+
+    props: ['scannerId'],
 
     methods: {
       configChangeRequested: function () {
-        this.$emit('configChangeRequested')
+        this.$emit('config-change-requested')
+      }
+    },
+
+    computed: {
+      ...mapGetters({
+        getScannerById: 'scanners/getScannerById'
+      }),
+
+      scanner: function () {
+        return this.getScannerById(this.scannerId)
       }
     }
   }

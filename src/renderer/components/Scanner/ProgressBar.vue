@@ -6,12 +6,10 @@
 </template>
 
 <script>
-
   export default {
     name: 'progress-bar',
-    props: ['percent'],
 
-    methods: {},
+    props: ['percent'],
 
     computed: {
       progressBarClass: function () {

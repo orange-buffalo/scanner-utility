@@ -14,13 +14,13 @@
 </template>
 
 <script>
-  import {mapActions} from 'vuex'
+  import {mapActions, mapGetters} from 'vuex'
   import {Status} from '../../scanners/scanner-api'
 
   export default {
     name: 'scanner-button',
 
-    props: ['scanner'],
+    props: ['scannerId'],
 
     methods: {
       ...mapActions({
@@ -28,14 +28,18 @@
       }),
 
       navigateToScanner: function () {
-        if (this.scanner.isReady) {
-          this.setActiveScanner(this.scanner)
+        if (this.scanner.isReady || this.scanner.isScanning) {
+          this.setActiveScanner(this.scannerId)
           this.$router.push({name: 'scanner'})
         }
       }
     },
 
     computed: {
+      ...mapGetters({
+        getScannerById: 'scanners/getScannerById'
+      }),
+
       status: function () {
         switch (this.scanner.status) {
           case Status.PENDING:
@@ -44,19 +48,23 @@
             return 'Failed'
           case Status.READY:
             return 'Ready'
+          case Status.SCANNING:
+            return 'Scanning'
         }
       },
 
       classObject: function () {
         return {
-          ready: this.scanner.isReady,
+          ready: this.scanner.isReady || this.scanner.isScanning,
           failed: this.scanner.isFailed,
           pending: this.scanner.isPending
         }
+      },
 
+      scanner: function () {
+        return this.getScannerById(this.scannerId)
       }
     }
-
   }
 </script>
 
@@ -77,7 +85,6 @@
       &:hover {
         background: lighten($bg-color, 5);
       }
-
     }
 
     .name {
@@ -106,6 +113,5 @@
     &.pending {
       opacity: 0.8;
     }
-
   }
 </style>
