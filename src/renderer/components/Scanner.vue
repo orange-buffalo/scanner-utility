@@ -22,18 +22,7 @@
           {{scanner.isScanning ? 'Scanning...' : 'Scan'}}
         </simple-button>
 
-        <popover name="actions" ref="actionsPopover">
-          <div slot="face">
-            <simple-button class="actions-button" @click="openActionsPopover">
-              <icon name="bars"></icon>
-              &nbsp;
-            </simple-button>
-          </div>
-          <div slot="content">
-            <a href="#" @click="saveAsPdf">npmjs.com</a>
-          </div>
-        </popover>
-
+        <page-actions :active-page-id="activePageId"></page-actions>
       </div>
     </div>
 
@@ -51,22 +40,20 @@
 </template>
 
 <script>
-  import ScannerButton from './ScannerSelection/ScannerButton'
   import ScannerInfo from './Scanner/ScannerInfo'
   import ScannerPage from './Scanner/ScannerPage'
   import ScannerConfigDialog from './Scanner/ScannerConfigDialog'
   import SimpleButton from './SimpleButton.vue'
-  import popover from 'vue-popover'
   import {mapGetters, mapState, mapActions} from 'vuex'
   import PagesCarousel from './Scanner/PagesCarousel'
   import Noty from 'noty'
+  import PageActions from './Scanner/PageActions'
 
   export default {
     name: 'scanner',
 
     components: {
-      SimpleButton, ScannerButton, ScannerInfo,
-      ScannerConfigDialog, ScannerPage, popover, PagesCarousel
+      SimpleButton, ScannerInfo, ScannerConfigDialog, ScannerPage, PagesCarousel, PageActions
     },
 
     data: function () {
@@ -78,13 +65,8 @@
     methods: {
       ...mapActions({
         startScanning: 'scanners/startScanning',
-        saveAsPdf: 'session/saveAsPdf',
         deletePage: 'session/deletePage'
       }),
-
-      openActionsPopover: function (e) {
-        this.$refs.actionsPopover.onPopoverToggle(e)
-      },
 
       back: function () {
         this.$router.push("/")
@@ -162,7 +144,6 @@
 <style lang="scss" scoped>
 
   @import "../styles/var";
-  @import "~vue-popover/dist/styles.css";
 
   $carousel-height: 200px;
 
@@ -198,16 +179,6 @@
     .scan-button {
 
     }
-
-    .actions-button {
-      padding-right: 1px;
-      margin-left: 10px;
-    }
-
-    .popover {
-      display: inline-block;
-    }
-
   }
 
   .page-preview {
