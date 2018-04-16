@@ -26,7 +26,7 @@
 </script>
 
 <style lang="scss" scoped>
-  @import "../../styles/var";
+  @import "../styles/var";
 
   .progress-bar {
     position: relative;

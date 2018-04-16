@@ -6,6 +6,11 @@
                         :key="scanner.id"
                         :scanner-id="scanner.id"/>
       </fade-transition>
+
+      <div class="searching-label">
+        <progress-bar></progress-bar>
+        <span>searching for scanners...</span>
+      </div>
     </div>
   </div>
 </template>
@@ -16,11 +21,12 @@
   import _ from 'lodash'
   import {mapState, mapActions} from 'vuex'
   import {Status} from '../scanners/scanner-api'
+  import ProgressBar from './ProgressBar'
 
   export default {
     name: 'scanner-selection',
 
-    components: {ScannerButton, FadeTransition},
+    components: {ScannerButton, FadeTransition, ProgressBar},
 
     methods: {
       ...mapActions({
@@ -61,5 +67,16 @@
     min-height: 100%;
     overflow-y: auto;
     padding-top: 30px;
+  }
+
+  .searching-label {
+    font-size: 70%;
+    text-align: center;
+    padding: 5px 20%;
+
+    span {
+      display: inline-block;
+      padding-top: 5px;
+    }
   }
 </style>

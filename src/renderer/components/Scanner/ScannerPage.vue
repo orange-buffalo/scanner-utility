@@ -29,7 +29,7 @@
 <script>
 
   import {FadeTransition} from 'vue2-transitions'
-  import ProgressBar from './ProgressBar'
+  import ProgressBar from '../ProgressBar'
 
   export default {
     name: 'scanner-page',
