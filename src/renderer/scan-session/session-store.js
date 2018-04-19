@@ -13,8 +13,16 @@ function createNewJpgFile() {
 function updatePage(page, percentLoaded) {
   page.percentLoaded = percentLoaded
   page.url = `file:///${page.fileName}?nocache=${new Date().getMilliseconds()}`
-  page.hasData = percentLoaded != null && percentLoaded > 0
   page.ready = percentLoaded == 100
+
+  try {
+    let fileStats = fs.statSync(page.fileName)
+    page.fileSizeInBytes = fileStats["size"]
+  } catch (err) {
+    // no op
+  }
+
+  page.hasData = page.fileSizeInBytes > 0
 }
 
 let pageNextId = 42
@@ -38,7 +46,8 @@ let sessionStore = {
           height: payload.height,
           hasData: false,
           ready: false,
-          error: false
+          error: false,
+          fileSizeInBytes: 0
         }
         updatePage(scanPage, null)
         context.state.pages.push(scanPage)

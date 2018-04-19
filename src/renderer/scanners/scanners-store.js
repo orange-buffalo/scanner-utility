@@ -130,7 +130,7 @@ export let scannersStore = {
             },
 
             percent => {
-              log.debug('scan progress', page, percent)
+              log.debug('scan progress %s at %s', page.fileName, percent)
 
               context.dispatch('session/updatePageProgress',
                   {
@@ -139,6 +139,8 @@ export let scannersStore = {
                   },
                   {root: true}
               )
+
+              log.debug('updated page: %j', page)
             },
 
             (error) => {

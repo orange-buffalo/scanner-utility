@@ -66,7 +66,7 @@ export class DevScannerProvider extends ScannerProvider {
   scanPage(scannerId, fileName, onComplete, onProgress, onFailure) {
     progress(request({
       uri: 'https://picsum.photos/1500/2064/?random',
-      timeout: 20000
+      timeout: 10000
     }), {
       // throttle: 100,                    // Throttle the progress event to 2000ms, defaults to 1000ms
       // delay: 1000,                       // Only start to emit after 1000ms delay, defaults to 0ms

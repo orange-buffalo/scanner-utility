@@ -71,6 +71,12 @@
 
   .popover {
     display: inline-block;
-  }
 
+    .popover__container {
+      left: 35px;
+      background: white;
+      padding: 5px;
+      top: 45px;
+    }
+  }
 </style>
