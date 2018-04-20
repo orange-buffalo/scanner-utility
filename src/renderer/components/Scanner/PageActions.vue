@@ -9,7 +9,8 @@
       </simple-button>
     </div>
     <div slot="content">
-      <a href="#" @click="saveAsPdf">npmjs.com</a>
+      <a href="#" @click="savePdf" v-if="pdfFileName">Save</a>
+      <a href="#" @click="saveAsPdf">Save As</a>
     </div>
   </popover>
 </template>
@@ -17,7 +18,8 @@
 <script>
   import SimpleButton from '../SimpleButton.vue'
   import popover from 'vue-popover'
-  import {mapGetters, mapActions} from 'vuex'
+  import {mapGetters, mapActions, mapState} from 'vuex'
+  import Noty from 'noty'
 
   export default {
     name: 'scanner',
@@ -30,7 +32,8 @@
 
     methods: {
       ...mapActions({
-        saveAsPdf: 'session/saveAsPdf',
+        saveSessionAs: 'session/saveAsPdf',
+        saveSession: 'session/savePdf',
         deletePage: 'session/deletePage'
       }),
 
@@ -38,16 +41,34 @@
         this.$refs.actionsPopover.onPopoverToggle(e)
       },
 
+      savePdf: function () {
+        this.saveSession()
+        new Noty({
+          text: `Saved to ${this.pdfFileName}`,
+          type: 'success',
+          layout: 'bottomCenter',
+          timeout: 5000
+        }).show()
+      },
 
-    },
-
-    created: function () {
-
+      saveAsPdf: function () {
+        this.saveSessionAs()
+        new Noty({
+          text: `Saved to ${this.pdfFileName}`,
+          type: 'success',
+          layout: 'bottomCenter',
+          timeout: 5000
+        }).show()
+      }
     },
 
     computed: {
       ...mapGetters({
         getPageById: 'session/getPageById'
+      }),
+
+      ...mapState({
+        pdfFileName: state => state.session.pdfFileName
       }),
 
       activePage: function () {

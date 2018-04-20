@@ -1,6 +1,7 @@
 const {app, dialog, getCurrentWindow} = require('electron').remote
 import fs from 'fs'
 import PDFDocument from 'pdfkit'
+import log from 'electron-log'
 
 function createNewJpgFile() {
   let dir = `${app.getPath('userData')}/session/`
@@ -29,7 +30,9 @@ let pageNextId = 42
 
 let sessionStore = {
   state: {
-    pages: []
+    pages: [],
+    saved: false,
+    pdfFileName: null
   },
 
   getters: {
@@ -59,6 +62,25 @@ let sessionStore = {
       updatePage(context.getters.getPageById(payload.pageId), payload.percent)
     },
 
+    savePdf(context) {
+      if (!context.state.pdfFileName) {
+        log.error('file name is not defined to save pdf file')
+        return
+      }
+
+      let doc = new PDFDocument({autoFirstPage: false})
+
+      doc.pipe(fs.createWriteStream(context.state.pdfFileName))
+
+      context.state.pages.forEach((page) => {
+        doc.addPage({margin: 0, size: 'A4'})  // todo layout: 'landscape'
+            .image(page.fileName, 0, 0,
+                {width: doc.page.width, height: doc.page.height})
+      })
+
+      doc.end()
+    },
+
     saveAsPdf(context) {
       let fileName = dialog.showSaveDialog(
           getCurrentWindow(), {
@@ -66,17 +88,8 @@ let sessionStore = {
           })
 
       if (fileName) {
-        let doc = new PDFDocument({autoFirstPage: false})
-
-        doc.pipe(fs.createWriteStream(fileName))
-
-        context.state.pages.forEach((page) => {
-          doc.addPage({margin: 0, size: 'A4'})  // todo layout: 'landscape'
-              .image(page.fileName, 0, 0,
-                  {width: doc.page.width, height: doc.page.height})
-        })
-
-        doc.end()
+        context.state.pdfFileName = fileName
+        context.dispatch('savePdf')
       }
     },
 
