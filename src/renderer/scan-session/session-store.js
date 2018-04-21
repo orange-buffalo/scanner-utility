@@ -143,6 +143,14 @@ let sessionStore = {
         let p = context.state.pages.splice(index, 1, context.state.pages[index - 1])
         context.state.pages.splice(index - 1, 1, p[0])
       }
+    },
+
+    movePageForward(context, pageId) {
+      let index = context.getters.getPageIndexById(pageId)
+      if (index < context.state.pages.length - 1) {
+        let p = context.state.pages.splice(index, 1, context.state.pages[index + 1])
+        context.state.pages.splice(index + 1, 1, p[0])
+      }
     }
   }
 }
