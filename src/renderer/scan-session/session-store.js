@@ -2,6 +2,7 @@ const {app, dialog, getCurrentWindow} = require('electron').remote
 import fs from 'fs'
 import PDFDocument from 'pdfkit'
 import log from 'electron-log'
+import sharp from 'sharp'
 
 function createNewJpgFile() {
   let dir = `${app.getPath('userData')}/session/`
@@ -11,9 +12,12 @@ function createNewJpgFile() {
   return `${dir}/${new Date().getTime()}.jpg`
 }
 
+function updatePageUrl(page) {
+  page.url = `file:///${page.fileName}?nocache=${new Date().getMilliseconds()}`
+}
+
 function updatePage(page, percentLoaded) {
   page.percentLoaded = percentLoaded
-  page.url = `file:///${page.fileName}?nocache=${new Date().getMilliseconds()}`
   page.ready = percentLoaded == 100
 
   try {
@@ -24,6 +28,8 @@ function updatePage(page, percentLoaded) {
   }
 
   page.hasData = page.fileSizeInBytes > 0
+
+  updatePageUrl(page)
 }
 
 let pageNextId = 42
@@ -101,6 +107,32 @@ let sessionStore = {
     deletePage(context, page) {
       let index = context.state.pages.findIndex(p => page.id == p.id)
       context.state.pages.splice(index, 1)
+    },
+
+    rotatePage(context, pageId) {
+      let page = context.getters.getPageById(pageId)
+      let newFile = createNewJpgFile()
+      sharp(page.fileName)
+          .rotate(90)
+          .toFile(newFile)
+          .then(() => {
+
+            let oldWidth = page.width
+            // noinspection JSSuspiciousNameCombination
+            page.width = page.height
+            // noinspection JSSuspiciousNameCombination
+            page.height = oldWidth
+
+            fs.unlinkSync(page.fileName)
+            page.fileName = newFile
+            updatePageUrl(page)
+
+            log.info('rotated %j', page)
+          })
+          .catch(err => {
+            log.error('failed to rotate image %s: %j', page.fileName, err)
+            fs.unlinkSync(newFile)
+          })
     }
   }
 }

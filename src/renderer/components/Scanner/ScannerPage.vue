@@ -18,9 +18,10 @@
         </div>
 
         <img :src="page.url"
+             :key="page.fileName"
              v-if="page && page.hasData"
-             :width="thumbnailWidth"
-             :height="thumbnailHeight"/>
+             :width="thumbnailSize.width"
+             :height="thumbnailSize.height"/>
       </fade-transition>
     </div>
   </div>
@@ -47,17 +48,6 @@
       }
     },
 
-    methods: {
-      recalculatePageSize: function (page) {
-        this.thumbnailWidth = Math.min(this.maxPageWidth, page.width)
-        this.thumbnailHeight = this.thumbnailWidth * page.height / page.width
-        if (this.thumbnailHeight > this.maxPageHeight) {
-          this.thumbnailHeight = this.maxPageHeight
-          this.thumbnailWidth = this.thumbnailHeight * page.width / page.height
-        }
-      }
-    },
-
     mounted: function () {
       let updateSizes = () => {
         this.maxPageWidth = this.$el.offsetWidth - 100
@@ -66,16 +56,20 @@
 
       new ResizeObserver(() => {
         updateSizes()
-        if (this.page) {
-          this.recalculatePageSize(this.page)
-        }
       }).observe(this.$el)
     },
 
-    watch: {
-      page: function (val) {
-        if (val) {
-          this.recalculatePageSize(val)
+    computed: {
+      thumbnailSize: function () {
+        let thumbnailWidth = Math.min(this.maxPageWidth, this.page.width)
+        let thumbnailHeight = thumbnailWidth * this.page.height / this.page.width
+        if (thumbnailHeight > this.maxPageHeight) {
+          thumbnailHeight = this.maxPageHeight
+          thumbnailWidth = thumbnailHeight * this.page.width / this.page.height
+        }
+        return {
+          width: thumbnailWidth,
+          height: thumbnailHeight
         }
       }
     }

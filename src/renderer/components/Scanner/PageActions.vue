@@ -11,6 +11,9 @@
     <div slot="content">
       <a href="#" @click="savePdf" v-if="pdfFileName">Save</a>
       <a href="#" @click="saveAsPdf">Save As</a>
+      <a href="#"
+         @click="rotatePage(activePageId)"
+         v-if="activePage && activePage.ready">Rotate</a>
     </div>
   </popover>
 </template>
@@ -34,7 +37,8 @@
       ...mapActions({
         saveSessionAs: 'session/saveAsPdf',
         saveSession: 'session/savePdf',
-        deletePage: 'session/deletePage'
+        deletePage: 'session/deletePage',
+        rotatePage: 'session/rotatePage'
       }),
 
       openActionsPopover: function (e) {
