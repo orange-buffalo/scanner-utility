@@ -42,7 +42,9 @@ let sessionStore = {
   },
 
   getters: {
-    getPageById: state => id => state.pages.find(page => page.id == id)
+    getPageById: state => id => state.pages.find(page => page.id == id),
+
+    getPageIndexById: state => id => state.pages.findIndex(page => page.id == id)
   },
 
   actions: {
@@ -105,7 +107,7 @@ let sessionStore = {
     },
 
     deletePage(context, page) {
-      let index = context.state.pages.findIndex(p => page.id == p.id)
+      let index = context.getters.getPageIndexById(page.id)
       context.state.pages.splice(index, 1)
     },
 
@@ -133,6 +135,14 @@ let sessionStore = {
             log.error('failed to rotate image %s: %j', page.fileName, err)
             fs.unlinkSync(newFile)
           })
+    },
+
+    movePageBackward(context, pageId) {
+      let index = context.getters.getPageIndexById(pageId)
+      if (index > 0) {
+        let p = context.state.pages.splice(index, 1, context.state.pages[index - 1])
+        context.state.pages.splice(index - 1, 1, p[0])
+      }
     }
   }
 }

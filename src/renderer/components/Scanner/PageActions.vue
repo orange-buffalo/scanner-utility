@@ -14,6 +14,9 @@
       <a href="#"
          @click="rotatePage(activePageId)"
          v-if="activePage && activePage.ready">Rotate</a>
+      <a href="#"
+         @click="movePageBackward(activePageId)"
+         v-if="moveBackwardVisible">Move to the beginning</a>
     </div>
   </popover>
 </template>
@@ -38,7 +41,8 @@
         saveSessionAs: 'session/saveAsPdf',
         saveSession: 'session/savePdf',
         deletePage: 'session/deletePage',
-        rotatePage: 'session/rotatePage'
+        rotatePage: 'session/rotatePage',
+        movePageBackward: 'session/movePageBackward'
       }),
 
       openActionsPopover: function (e) {
@@ -68,7 +72,8 @@
 
     computed: {
       ...mapGetters({
-        getPageById: 'session/getPageById'
+        getPageById: 'session/getPageById',
+        getPageIndexById: 'session/getPageIndexById'
       }),
 
       ...mapState({
@@ -77,6 +82,10 @@
 
       activePage: function () {
         return this.activePageId ? this.getPageById(this.activePageId) : null
+      },
+
+      moveBackwardVisible: function () {
+        return this.activePage && this.getPageIndexById(this.activePageId) > 0
       }
     },
 

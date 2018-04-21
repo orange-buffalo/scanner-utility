@@ -17,7 +17,7 @@
       <div class="col-6">
         <simple-button class="scan-button"
                        :disabled="scanner.isScanning"
-                       @click="startScanning">
+                       @click="onStartScanning">
           <icon name="inbox"></icon>
           {{scanner.isScanning ? 'Scanning...' : 'Scan'}}
         </simple-button>
@@ -74,6 +74,11 @@
 
       showConfigDialog: function () {
         this.$modal.show('scanner-config')
+      },
+
+      onStartScanning: function () {
+        this.startScanning()
+            .then(page => this.activePageId = page.id)
       }
     },
 
@@ -120,7 +125,9 @@
 
     watch: {
       pages: function (newPages) {
-        this.activePageId = newPages.length ? newPages[newPages.length - 1].id : null
+        if (!this.getPageById(this.activePageId)) {
+          this.activePageId = newPages.length ? newPages[newPages.length - 1].id : null
+        }
       },
 
       'activePage.error': function (error) {

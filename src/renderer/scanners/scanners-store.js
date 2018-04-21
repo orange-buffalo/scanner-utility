@@ -104,53 +104,57 @@ export let scannersStore = {
     },
 
     startScanning: function (context) {
-      let scanner = context.state.activeScanner
-      scanner.status = Status.SCANNING
+      return new Promise((resolve => {
+        let scanner = context.state.activeScanner
+        scanner.status = Status.SCANNING
 
-      context.dispatch('session/createNewPage', {
-            width: scanner.capabilities.maxWidth,
-            height: scanner.capabilities.maxHeight
-          }, {root: true}
-      ).then((page) => {
+        context.dispatch('session/createNewPage', {
+              width: scanner.capabilities.maxWidth,
+              height: scanner.capabilities.maxHeight
+            }, {root: true}
+        ).then((page) => {
 
-        log.info('starting scanning new page', page)
+          log.info('starting scanning new page', page)
 
-        this.scannersToProviders[scanner.id].scanPage(scanner.id,
-            page.fileName,
+          resolve(page)
 
-            () => {
-              log.info('successfully scanned', page)
+          this.scannersToProviders[scanner.id].scanPage(scanner.id,
+              page.fileName,
 
-              context.dispatch('session/updatePageProgress', {
-                    pageId: page.id,
-                    percent: 100
-                  }, {root: true}
-              )
-              scanner.status = Status.READY
-            },
+              () => {
+                log.info('successfully scanned', page)
 
-            percent => {
-              log.debug('scan progress %s at %s', page.fileName, percent)
+                context.dispatch('session/updatePageProgress', {
+                      pageId: page.id,
+                      percent: 100
+                    }, {root: true}
+                )
+                scanner.status = Status.READY
+              },
 
-              context.dispatch('session/updatePageProgress',
-                  {
-                    pageId: page.id,
-                    percent: percent
-                  },
-                  {root: true}
-              )
+              percent => {
+                log.debug('scan progress %s at %s', page.fileName, percent)
 
-              log.debug('updated page: %j', page)
-            },
+                context.dispatch('session/updatePageProgress',
+                    {
+                      pageId: page.id,
+                      percent: percent
+                    },
+                    {root: true}
+                )
 
-            (error) => {
-              log.error('error while communicating with scanner', scanner, error)
+                log.debug('updated page: %j', page)
+              },
 
-              context.dispatch('session/failPageScan', page, {root: true})
-              scanner.status = Status.READY
-            }
-        )
-      })
+              (error) => {
+                log.error('error while communicating with scanner', scanner, error)
+
+                context.dispatch('session/failPageScan', page, {root: true})
+                scanner.status = Status.READY
+              }
+          )
+        })
+      }))
     },
 
     updateScannerConfig(context, request) {
