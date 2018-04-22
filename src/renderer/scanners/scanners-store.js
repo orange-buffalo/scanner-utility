@@ -83,7 +83,9 @@ export let scannersStore = {
               }),
               colorMode: scanner.capabilities.colorModes.find((cm) => {
                 return cm.isDefault
-              })
+              }),
+              pageWidth: scanner.capabilities.maxWidth,
+              pageHeight: scanner.capabilities.maxHeight
             })
           }
         }
@@ -109,8 +111,8 @@ export let scannersStore = {
         scanner.status = Status.SCANNING
 
         context.dispatch('session/createNewPage', {
-              width: scanner.capabilities.maxWidth,
-              height: scanner.capabilities.maxHeight
+              width: scanner.config.pageWidth,
+              height: scanner.config.pageHeight
             }, {root: true}
         ).then((page) => {
 
@@ -121,9 +123,9 @@ export let scannersStore = {
           this.scannersToProviders[scanner.id].scanPage(
               scanner.id,
 
-              scanner.config,
-
-              page.fileName,
+              _.extend({}, scanner.config, {
+                fileName: page.fileName
+              }),
 
               () => {
                 log.info('successfully scanned', page)

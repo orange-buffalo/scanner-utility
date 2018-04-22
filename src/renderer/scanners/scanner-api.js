@@ -22,21 +22,21 @@ export class ScannerProvider {
    *
    */
   constructor(callbacks) {
-     this.callbacks = callbacks
+    this.callbacks = callbacks
   }
 
   /**
    * Initiates scanning for scanner identified by id. Provided callbacks must be called in order to update the scanning
    * progress and results.
    * @param scannerId scanner to start scanning for.
-   * @param config scanner configuration
-   * @param fileName full path to the JPEG file that is to be populated during scanning.
+   * @param config scanner configuration, including scanner capabilities config and
+   * full path to the JPEG file that is to be populated during scanning.
    * @param onComplete = function(): to be called upon successful completion of page scanning.
    * @param onProgress = function(percent): to be called during scanning to indicate the progress. null percent means
    * there is scanning ongoing but it is not possible to determine the completeness percent.
    * @param onFailure = function(error): to be called if scanning failed.
    */
-  scanPage(scannerId, config, fileName, onComplete, onProgress, onFailure) {
+  scanPage(scannerId, config, onComplete, onProgress, onFailure) {
     // no op
   }
 

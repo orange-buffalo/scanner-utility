@@ -63,7 +63,7 @@ export class DevScannerProvider extends ScannerProvider {
     })
   }
 
-  scanPage(scannerId, config, fileName, onComplete, onProgress, onFailure) {
+  scanPage(scannerId, config, onComplete, onProgress, onFailure) {
     progress(request({
       uri: 'https://picsum.photos/1500/2064/?random',
       timeout: 10000
@@ -84,6 +84,6 @@ export class DevScannerProvider extends ScannerProvider {
           onComplete()
         })
 
-        .pipe(fs.createWriteStream(fileName))
+        .pipe(fs.createWriteStream(config.fileName))
   }
 }

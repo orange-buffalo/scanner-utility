@@ -77,7 +77,7 @@ export class eSclScannerProvider extends ScannerProvider {
     })
   }
 
-  scanPage(scannerId, config, fileName, onComplete, onProgress, onFailure) {
+  scanPage(scannerId, config, onComplete, onProgress, onFailure) {
     let scanner = this.scanners[scannerId]
 
     log.info('requested scan for %s', scanner.host)
@@ -91,9 +91,9 @@ export class eSclScannerProvider extends ScannerProvider {
         'pwg:Version': '2.6',
         'pwg:ScanRegions': {
           'pwg:ScanRegion': {
-            'pwg:Height': scanner.capabilities.maxHeight,
+            'pwg:Height': config.pageHeight,
             'pwg:ContentRegionUnits': 'escl:ThreeHundredthsOfInches',
-            'pwg:Width': scanner.capabilities.maxWidth,
+            'pwg:Width': config.pageWidth,
             'pwg:XOffset': '0',
             'pwg:YOffset': '0'
           }
@@ -140,7 +140,7 @@ export class eSclScannerProvider extends ScannerProvider {
       ).on('progress', (state) => {
         onProgress(state.percent * 100)
 
-      }).pipe(fs.createWriteStream(fileName))
+      }).pipe(fs.createWriteStream(config.fileName))
 
     }).catch(error => onFailure(error))
   }
