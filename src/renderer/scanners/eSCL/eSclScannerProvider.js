@@ -4,6 +4,9 @@ import axios from 'axios'
 import log from 'electron-log'
 import xml2js from 'xml2js'
 import mdns from 'mdns-js'
+import request from 'request'
+import progress from 'request-progress'
+import fs from 'fs'
 
 export class eSclScannerProvider extends ScannerProvider {
 
@@ -20,6 +23,11 @@ export class eSclScannerProvider extends ScannerProvider {
 
     this.browser.on('update', service => {
       log.info('new scan service became available', service)
+
+      if (!service.txt || !service.host) {
+        log.info('skipping as essential info is missing')
+        return
+      }
 
       if (this.scanners.find(scanner => scanner.host == service.host)) {
         log.info('already registered %s', service.host)
@@ -69,8 +77,72 @@ export class eSclScannerProvider extends ScannerProvider {
     })
   }
 
-  scanPage(scannerId, fileName, onComplete, onProgress, onFailure) {
+  scanPage(scannerId, config, fileName, onComplete, onProgress, onFailure) {
+    let scanner = this.scanners[scannerId]
 
+    log.info('requested scan for %s', scanner.host)
+
+    let scanRequest = {
+      'scan:ScanSettings': {
+        '$': {
+          'xmlns:pwg': 'http://www.pwg.org/schemas/2010/12/sm',
+          'xmlns:scan': 'http://schemas.hp.com/imaging/escl/2011/05/03',
+        },
+        'pwg:Version': '2.6',
+        'pwg:ScanRegions': {
+          'pwg:ScanRegion': {
+            'pwg:Height': scanner.capabilities.maxHeight,
+            'pwg:ContentRegionUnits': 'escl:ThreeHundredthsOfInches',
+            'pwg:Width': scanner.capabilities.maxWidth,
+            'pwg:XOffset': '0',
+            'pwg:YOffset': '0'
+          }
+        },
+        'pwg:InputSource': 'Platen',
+        'scan:ColorMode': config.colorMode.name,
+        'pwg:DocumentFormat': 'image/jpeg',
+        'scan:XResolution': config.resolution.value,
+        'scan:YResolution': config.resolution.value
+      }
+    }
+    let scanRequestXml = new xml2js.Builder().buildObject(scanRequest)
+
+    log.debug('preparing to send %s', scanRequestXml)
+
+    scanner._$http.post('/ScanJobs', scanRequestXml, {
+      responseType: 'text',
+
+    }).then(function (response) {
+      if (response.status != 201) {
+        onFailure(response)
+        return
+      }
+
+      let jobLocation = response.headers.location
+
+      log.info('scheduled scan job %s', jobLocation)
+
+      progress(request({
+            uri: `${jobLocation}/NextDocument`,
+            timeout: 10000
+
+          }, (error, response) => {
+            if (error) {
+              onFailure(error)
+            }
+            else if (response.statusCode != 200) {
+              onFailure(response)
+            }
+            else {
+              onComplete()
+            }
+          })
+      ).on('progress', (state) => {
+        onProgress(state.percent * 100)
+
+      }).pipe(fs.createWriteStream(fileName))
+
+    }).catch(error => onFailure(error))
   }
 
   readCapabilities(scanner, rawCapabilities) {
@@ -114,6 +186,7 @@ export class eSclScannerProvider extends ScannerProvider {
 
       this.callbacks.onCapabilitiesRetrieved(scanner.id, capabilities)
       this.callbacks.onScannerStatusChange(scanner.id, Status.READY)
+      scanner.capabilities = capabilities
 
       log.info('retrieved capabilities for scanner:', scanner)
     }

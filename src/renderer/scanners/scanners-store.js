@@ -118,7 +118,11 @@ export let scannersStore = {
 
           resolve(page)
 
-          this.scannersToProviders[scanner.id].scanPage(scanner.id,
+          this.scannersToProviders[scanner.id].scanPage(
+              scanner.id,
+
+              scanner.config,
+
               page.fileName,
 
               () => {
