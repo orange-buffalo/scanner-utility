@@ -56,7 +56,7 @@ export class eSclScannerProvider extends ScannerProvider {
                     this.callbacks.onScannerStatusChange(scanner.id, Status.FAILED)
                   }
                   else {
-                    this.readCapabilities(scannerOptions, result)
+                    this.readCapabilities(scanner, result)
                   }
                 }
             )
