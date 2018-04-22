@@ -77,6 +77,17 @@ export let scannersStore = {
             let scanner = context.getters.getScannerById(scannerId)
             scanner.capabilities = _.extend({}, scanner.capabilities, capabilities)
 
+            // support for A4 only (for now)
+            let pageWidth = scanner.capabilities.maxWidth
+            let pageHeight = scanner.capabilities.maxHeight
+            const a4Ratio = 0.7070707070707071
+            if (pageWidth / pageHeight > a4Ratio) {
+              pageWidth = Math.round(pageHeight * a4Ratio)
+            }
+            else {
+              pageHeight = Math.round(pageWidth / a4Ratio)
+            }
+
             updateScannerConfig(scanner, {
               resolution: scanner.capabilities.resolutions.find((r) => {
                 return r.isDefault
@@ -84,8 +95,8 @@ export let scannersStore = {
               colorMode: scanner.capabilities.colorModes.find((cm) => {
                 return cm.isDefault
               }),
-              pageWidth: scanner.capabilities.maxWidth,
-              pageHeight: scanner.capabilities.maxHeight
+              pageWidth: pageWidth,
+              pageHeight: pageHeight
             })
           }
         }
