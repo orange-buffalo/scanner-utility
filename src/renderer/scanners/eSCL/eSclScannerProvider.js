@@ -1,9 +1,9 @@
 import CapabilitiesReader from './_capabilities-reader'
 import {Status, ScannerProvider} from '../scanner-api'
-import bonjour from 'bonjour'
 import axios from 'axios'
 import log from 'electron-log'
 import xml2js from 'xml2js'
+import mdns from 'mdns-js'
 
 export class eSclScannerProvider extends ScannerProvider {
 
@@ -12,11 +12,22 @@ export class eSclScannerProvider extends ScannerProvider {
 
     this.scanners = []
 
-    bonjour().find({type: 'uscan'}, service => {
+    this.browser = mdns.createBrowser('_uscan._tcp')
+
+    this.browser.on('ready', () => {
+      this.browser.discover()
+    })
+
+    this.browser.on('update', service => {
       log.info('new scan service became available', service)
 
+      if (this.scanners.find(scanner => scanner.host == service.host)) {
+        log.info('already registered %s', service.host)
+        return
+      }
+
       let scannerOptions = {
-        name: service.txt.ty,
+        name: service.txt.find(txt => txt.startsWith('ty=')).replace('ty=', ''),
         address: service.addresses.join(', ')
       }
 
@@ -26,7 +37,8 @@ export class eSclScannerProvider extends ScannerProvider {
           baseURL: 'http://' + service.host + ':' + service.port + '/eSCL',
           timeout: 20000
         }),
-        options: scannerOptions
+        options: scannerOptions,
+        host: service.host
       }
       this.scanners[scanner.id] = scanner
 
