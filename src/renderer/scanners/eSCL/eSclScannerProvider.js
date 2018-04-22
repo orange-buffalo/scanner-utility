@@ -188,7 +188,7 @@ export class eSclScannerProvider extends ScannerProvider {
       this.callbacks.onScannerStatusChange(scanner.id, Status.READY)
       scanner.capabilities = capabilities
 
-      log.info('retrieved capabilities for scanner:', scanner)
+      log.info('retrieved capabilities for scanner: %j', scanner)
     }
     else {
       this.callbacks.onScannerStatusChange(scanner.id, Status.FAILED)
