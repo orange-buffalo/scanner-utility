@@ -1,6 +1,7 @@
 <template>
-  <popover name="actions" ref="actionsPopover">
-    <div slot="face">
+  <popover name="actions" ref="actionsPopover"
+           :closeOnContentClick="false">
+    <div slot="trigger">
       <simple-button class="actions-button"
                      @click="openActionsPopover"
                      :disabled="!activePageId || !activePage.ready">
@@ -8,25 +9,29 @@
         &nbsp;
       </simple-button>
     </div>
-    <div slot="content">
+    <div slot="content" v-if="activePage && activePage.ready">
       <a href="#" @click="savePdf" v-if="pdfFileName">Save</a>
+
       <a href="#" @click="saveAsPdf">Save As</a>
+
       <a href="#"
-         @click="rotatePage(activePageId)"
-         v-if="activePage && activePage.ready">Rotate</a>
+         @click="rotatePage(activePageId)">Rotate</a>
+
       <a href="#"
          @click="movePageBackward(activePageId)"
          v-if="isMoveBackwardVisible">Move to the beginning</a>
+
       <a href="#"
          @click="movePageForward(activePageId)"
          v-if="isMoveForwardVisible">Move to the end</a>
+
     </div>
   </popover>
 </template>
 
 <script>
   import SimpleButton from '../SimpleButton.vue'
-  import popover from 'vue-popover'
+  import Popover from './Popover'
   import {mapGetters, mapActions, mapState} from 'vuex'
   import Noty from 'noty'
 
@@ -34,7 +39,7 @@
     name: 'scanner',
 
     components: {
-      SimpleButton, popover
+      SimpleButton, Popover
     },
 
     props: ['activePageId'],
@@ -61,6 +66,8 @@
           layout: 'bottomCenter',
           timeout: 5000
         }).show()
+
+        this.$refs.actionsPopover.close()
       },
 
       saveAsPdf: function () {
@@ -71,6 +78,8 @@
           layout: 'bottomCenter',
           timeout: 5000
         }).show()
+
+        this.$refs.actionsPopover.close()
       }
     },
 
@@ -90,11 +99,11 @@
       },
 
       isMoveBackwardVisible: function () {
-        return this.activePage && this.getPageIndexById(this.activePageId) > 0
+        return this.getPageIndexById(this.activePageId) > 0
       },
 
       isMoveForwardVisible: function () {
-        return this.activePage && this.getPageIndexById(this.activePageId) < this.pages.length - 1
+        return this.getPageIndexById(this.activePageId) < this.pages.length - 1
       }
     },
 
@@ -105,7 +114,6 @@
 <style lang="scss" scoped>
 
   @import "../../styles/var";
-  @import "~vue-popover/dist/styles.css";
 
   .actions-button {
     padding-right: 1px;
@@ -113,9 +121,7 @@
   }
 
   .popover {
-    display: inline-block;
-
-    .popover__container {
+    .popover-container {
       left: 35px;
       background: white;
       padding: 5px;
