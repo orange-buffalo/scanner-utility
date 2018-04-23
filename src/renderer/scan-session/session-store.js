@@ -110,9 +110,12 @@ let sessionStore = {
       page.ready = true
     },
 
-    deletePage(context, page) {
-      let index = context.getters.getPageIndexById(page.id)
-      context.state.pages.splice(index, 1)
+    deletePage(context, pageId) {
+      let index = context.getters.getPageIndexById(pageId)
+      let page = context.state.pages.splice(index, 1)[0]
+      fs.unlinkSync(page.fileName)
+
+      log.info('removed %j', page)
     },
 
     rotatePage(context, pageId) {

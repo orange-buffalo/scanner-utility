@@ -37,7 +37,7 @@
       open: function () {
         this.isOpen = true
         document.documentElement.addEventListener('click', this.close, false)
-        this.$emit('popover:open')
+        this.$emit('open')
       },
 
       onPopoverToggle: function (e) {
@@ -64,7 +64,7 @@
 
       close: function () {
         this.isOpen = false
-        this.$emit('popover:close')
+        this.$emit('close')
       }
     },
 
@@ -75,7 +75,7 @@
     },
 
     mounted: function () {
-      this.$on('popover:close', this.removeDocumentEvent)
+      this.$on('close', this.removeDocumentEvent)
     },
 
     beforeDestroy: function () {

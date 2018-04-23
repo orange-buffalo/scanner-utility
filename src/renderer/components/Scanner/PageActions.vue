@@ -1,6 +1,7 @@
 <template>
   <popover name="actions" ref="actionsPopover"
-           :closeOnContentClick="false">
+           :closeOnContentClick="false"
+           @close="resetState">
     <div slot="trigger">
       <simple-button class="actions-button"
                      @click="openActionsPopover"
@@ -25,6 +26,14 @@
          @click="movePageForward(activePageId)"
          v-if="isMoveForwardVisible">Move to the end</a>
 
+      <a href="#"
+         @click="showDeleteConfirmation = true"
+         v-if="!showDeleteConfirmation">Delete</a>
+
+      <a href="#"
+         @click="deleteCurrentPage"
+         v-if="showDeleteConfirmation">Confirm</a>
+
     </div>
   </popover>
 </template>
@@ -43,6 +52,12 @@
     },
 
     props: ['activePageId'],
+
+    data: function () {
+      return {
+        showDeleteConfirmation: false
+      }
+    },
 
     methods: {
       ...mapActions({
@@ -79,6 +94,15 @@
           timeout: 5000
         }).show()
 
+        this.$refs.actionsPopover.close()
+      },
+
+      resetState: function () {
+        this.showDeleteConfirmation = false
+      },
+
+      deleteCurrentPage: function () {
+        this.deletePage(this.activePageId)
         this.$refs.actionsPopover.close()
       }
     },

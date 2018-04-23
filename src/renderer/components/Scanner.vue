@@ -140,7 +140,7 @@
           }).show()
 
           if (!this.activePage.hasData) {
-            this.deletePage(this.activePage)
+            this.deletePage(this.activePageId)
           }
         }
       }
