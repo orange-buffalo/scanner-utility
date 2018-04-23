@@ -81,9 +81,13 @@ let sessionStore = {
       doc.pipe(fs.createWriteStream(context.state.pdfFileName))
 
       context.state.pages.forEach((page) => {
-        doc.addPage({margin: 0, size: 'A4'})  // todo layout: 'landscape'
-            .image(page.fileName, 0, 0,
-                {width: doc.page.width, height: doc.page.height})
+        doc.addPage({
+          margin: 0,
+          size: 'A4',
+          layout: page.width > page.height ? 'landscape' : 'portrait'
+
+        }).image(page.fileName, 0, 0,
+            {width: doc.page.width, height: doc.page.height})
       })
 
       doc.end()
