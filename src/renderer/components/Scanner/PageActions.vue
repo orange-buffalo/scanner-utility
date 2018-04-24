@@ -86,13 +86,14 @@
       },
 
       saveAsPdf: function () {
-        this.saveSessionAs()
-        new Noty({
-          text: `Saved to ${this.pdfFileName}`,
-          type: 'success',
-          layout: 'bottomCenter',
-          timeout: 5000
-        }).show()
+        this.saveSessionAs().then(() =>
+            new Noty({
+              text: `Saved to ${this.pdfFileName}`,
+              type: 'success',
+              layout: 'bottomCenter',
+              timeout: 5000
+            }).show()
+        )
 
         this.$refs.actionsPopover.close()
       },

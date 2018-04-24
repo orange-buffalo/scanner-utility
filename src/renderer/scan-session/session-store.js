@@ -94,15 +94,24 @@ let sessionStore = {
     },
 
     saveAsPdf(context) {
-      let fileName = dialog.showSaveDialog(
-          getCurrentWindow(), {
-            filters: [{extensions: ['.pdf']}]
-          })
+      return new Promise((resolve, reject) => {
+        let fileName = dialog.showSaveDialog(
+            getCurrentWindow(), {
+              filters: [{
+                name: 'Adobe PDF',
+                extensions: ['pdf']
+              }]
+            })
 
-      if (fileName) {
-        context.state.pdfFileName = fileName
-        context.dispatch('savePdf')
-      }
+        if (fileName) {
+          context.state.pdfFileName = fileName
+          context.dispatch('savePdf')
+          resolve()
+        }
+        else {
+          reject()
+        }
+      })
     },
 
     failPageScan(context, page) {
