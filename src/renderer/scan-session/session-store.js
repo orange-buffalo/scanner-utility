@@ -4,12 +4,28 @@ import PDFDocument from 'pdfkit'
 import log from 'electron-log'
 import sharp from 'sharp'
 
-function createNewJpgFile() {
-  let dir = `${app.getPath('userData')}/session/`
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
+let sessionStorePath = `${app.getPath('userData')}/session/`
+if (!fs.existsSync(sessionStorePath)) {
+  fs.mkdirSync(sessionStorePath)
+}
+
+let pageNextId = 42
+
+class Page {
+  constructor(fileName, width, height) {
+    this.id = pageNextId++
+    this.fileName = fileName
+    this.width = width
+    this.height = height
+    this.hasData = false
+    this.ready = false
+    this.error = false
+    this.fileSizeInBytes = 0
   }
-  return `${dir}/${new Date().getTime()}.jpg`
+}
+
+function createNewJpgFile() {
+  return `${sessionStorePath}/${new Date().getTime()}.jpg`
 }
 
 function updatePageUrl(page) {
@@ -32,11 +48,46 @@ function updatePage(page, percentLoaded) {
   updatePageUrl(page)
 }
 
-let pageNextId = 42
+function getExistingPages() {
+  let pages = []
+  fs.readdirSync(sessionStorePath).forEach(shortFileName => {
+    let fileName = `${sessionStorePath}${shortFileName}`
+    log.info('found existing page in session: %s', fileName)
+
+    if (fileName.toLowerCase().endsWith('.jpg')) {
+      let fileStats = fs.statSync(fileName)
+      let fileSizeInBytes = fileStats["size"]
+      if (fileSizeInBytes == 0) {
+        fs.unlinkSync(fileName)
+
+        log.info('removed zero-sized jpeg: %s', fileName)
+      }
+      else {
+        sharp(fileName)
+            .metadata()
+            .then(info => {
+              let page = new Page(
+                  fileName,
+                  info.width,
+                  info.height
+              )
+              pages.push(page)
+              updatePage(page, 100)
+
+              log.info('loaded page %j', page)
+            })
+            .catch(err => {
+              log.warn('cannot read metadata for %s: %j', fileName, err)
+            })
+      }
+    }
+  })
+  return pages
+}
 
 let sessionStore = {
   state: {
-    pages: [],
+    pages: getExistingPages(),
     saved: false,
     pdfFileName: null
   },
@@ -50,16 +101,11 @@ let sessionStore = {
   actions: {
     createNewPage(context, payload) {
       return new Promise((resolve) => {
-        let scanPage = {
-          id: pageNextId++,
-          fileName: createNewJpgFile(),
-          width: payload.width,
-          height: payload.height,
-          hasData: false,
-          ready: false,
-          error: false,
-          fileSizeInBytes: 0
-        }
+        let scanPage = new Page(
+            createNewJpgFile(),
+            payload.width,
+            payload.height
+        )
         updatePage(scanPage, null)
         context.state.pages.push(scanPage)
         resolve(scanPage)
