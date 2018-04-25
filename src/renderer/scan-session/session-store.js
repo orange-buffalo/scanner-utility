@@ -3,6 +3,7 @@ import fs from 'fs'
 import PDFDocument from 'pdfkit'
 import log from 'electron-log'
 import sharp from 'sharp'
+import prettyBytes from 'pretty-bytes'
 
 let sessionStorePath = `${app.getPath('userData')}/session/`
 if (!fs.existsSync(sessionStorePath)) {
@@ -88,14 +89,30 @@ function getExistingPages() {
 let sessionStore = {
   state: {
     pages: getExistingPages(),
-    saved: false,
-    pdfFileName: null
+    pdfFileName: null,
+    allChangesSaved: false
   },
 
   getters: {
     getPageById: state => id => state.pages.find(page => page.id == id),
 
-    getPageIndexById: state => id => state.pages.findIndex(page => page.id == id)
+    getPageIndexById: state => id => state.pages.findIndex(page => page.id == id),
+
+    getSessionInfo: state => {
+      let totalPagesSizeInBytes = 0
+      state.pages.forEach(page => {
+        if (page.ready) {
+          totalPagesSizeInBytes += page.fileSizeInBytes
+        }
+      })
+
+      return {
+        fileName: state.fileName,
+        pagesCount: state.pages.length,
+        totalSize: prettyBytes(totalPagesSizeInBytes),
+        allChangesSaved: state.allChangesSaved
+      }
+    }
   },
 
   actions: {
@@ -108,6 +125,7 @@ let sessionStore = {
         )
         updatePage(scanPage, null)
         context.state.pages.push(scanPage)
+        context.state.allChangesSaved = false
         resolve(scanPage)
       })
     },
@@ -137,6 +155,8 @@ let sessionStore = {
       })
 
       doc.end()
+
+      context.state.allChangesSaved = true
     },
 
     saveAsPdf(context) {
@@ -169,6 +189,7 @@ let sessionStore = {
       let index = context.getters.getPageIndexById(pageId)
       let page = context.state.pages.splice(index, 1)[0]
       fs.unlinkSync(page.fileName)
+      context.state.allChangesSaved = false
 
       log.info('removed %j', page)
     },
@@ -191,6 +212,8 @@ let sessionStore = {
             page.fileName = newFile
             updatePageUrl(page)
 
+            context.state.allChangesSaved = false
+
             log.info('rotated %j', page)
           })
           .catch(err => {
@@ -204,6 +227,8 @@ let sessionStore = {
       if (index > 0) {
         let p = context.state.pages.splice(index, 1, context.state.pages[index - 1])
         context.state.pages.splice(index - 1, 1, p[0])
+
+        context.state.allChangesSaved = false
       }
     },
 
@@ -212,6 +237,8 @@ let sessionStore = {
       if (index < context.state.pages.length - 1) {
         let p = context.state.pages.splice(index, 1, context.state.pages[index + 1])
         context.state.pages.splice(index + 1, 1, p[0])
+
+        context.state.allChangesSaved = false
       }
     }
   }

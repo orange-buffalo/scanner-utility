@@ -11,6 +11,13 @@
       </simple-button>
     </div>
     <div slot="content" v-if="activePage && activePage.ready">
+      <span>{{sessionInfo.pagesCount}} pages ({{sessionInfo.totalSize}} raw)</span>
+      <span v-if="pdfFileName"> saved to {{pdfFileName}}</span>
+      <br/>
+      <span v-if="sessionInfo.allChangesSaved">All the changes are saved</span>
+      <span v-if="!sessionInfo.allChangesSaved">Unsaved changes are pending.</span>
+      <br/>
+
       <a href="#" @click="savePdf" v-if="pdfFileName">Save</a>
 
       <a href="#" @click="saveAsPdf">Save As</a>
@@ -111,7 +118,8 @@
     computed: {
       ...mapGetters({
         getPageById: 'session/getPageById',
-        getPageIndexById: 'session/getPageIndexById'
+        getPageIndexById: 'session/getPageIndexById',
+        sessionInfo: 'session/getSessionInfo'
       }),
 
       ...mapState({
