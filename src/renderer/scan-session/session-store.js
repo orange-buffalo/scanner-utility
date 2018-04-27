@@ -90,7 +90,7 @@ let sessionStore = {
   state: {
     pages: getExistingPages(),
     pdfFileName: null,
-    allChangesSaved: false
+    allChangesSaved: true
   },
 
   getters: {
@@ -240,6 +240,16 @@ let sessionStore = {
 
         context.state.allChangesSaved = false
       }
+    },
+
+    clear(context) {
+      log.info('clearing the session')
+
+      context.state.pages.forEach(page => {
+        log.info('deleting %s', page.fileName)
+
+        fs.unlinkSync(page.fileName)
+      })
     }
   }
 }

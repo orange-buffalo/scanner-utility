@@ -1,4 +1,5 @@
-import { app, BrowserWindow } from 'electron'
+import {app, BrowserWindow, dialog, ipcMain} from 'electron'
+import log from 'electron-log'
 
 /**
  * Set `__static` path to static files in production
@@ -10,10 +11,10 @@ if (process.env.NODE_ENV !== 'development') {
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080`
-  : `file://${__dirname}/index.html`
+    ? `http://localhost:9080`
+    : `file://${__dirname}/index.html`
 
-function createWindow () {
+function createWindow() {
   /**
    * Initial window options
    */
@@ -28,6 +29,35 @@ function createWindow () {
   })
 
   mainWindow.loadURL(winURL)
+
+  app.showExitPrompt = true
+
+  ipcMain.on('quit-response', (event, response) => {
+    log.info('quit response received: %j', response)
+    if (response.canClose) {
+      app.showExitPrompt = false
+      mainWindow.close()
+    }
+    else {
+      dialog.showMessageBox({
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Unsaved changes are pending',
+        message: `There are ${response.pagesCount} pages scanned and they are not saved. Are you sure to close the app and loose all the scanned pages?`
+      }, (response) => {
+        if (response === 0) {
+          mainWindow.webContents.send('quit-request', {force: true})
+        }
+      })
+    }
+  })
+
+  mainWindow.on('close', (e) => {
+    if (app.showExitPrompt) {
+      e.preventDefault()
+      mainWindow.webContents.send('quit-request', {force: false})
+    }
+  })
 
   mainWindow.on('closed', () => {
     mainWindow = null
