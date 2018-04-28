@@ -17,9 +17,9 @@
              class="page-message">Making the scanner work hard..
         </div>
 
-        <img :src="page.url"
+        <img :src="pageUrl"
              :key="page.fileName"
-             v-if="page && page.hasData"
+             v-if="page && page.hasData && pageUrl"
              :width="thumbnailSize.width"
              :height="thumbnailSize.height"/>
       </fade-transition>
@@ -44,7 +44,8 @@
         maxPageWidth: 0,
         maxPageHeight: 0,
         thumbnailWidth: 0,
-        thumbnailHeight: 0
+        thumbnailHeight: 0,
+        pageUrl: null
       }
     },
 
@@ -70,6 +71,16 @@
         return {
           width: thumbnailWidth,
           height: thumbnailHeight
+        }
+      }
+    },
+
+    watch: {
+      'page.url': function (newUrl) {
+        if (this.page.hasData) {
+          let image = new Image()
+          image.src = newUrl
+          image.onload = () => this.pageUrl = newUrl
         }
       }
     }
