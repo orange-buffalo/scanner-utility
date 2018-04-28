@@ -78,9 +78,16 @@
     watch: {
       'page.url': function (newUrl) {
         if (this.page.hasData) {
-          let image = new Image()
-          image.src = newUrl
-          image.onload = () => this.pageUrl = newUrl
+          if (this.$loadingImage) {
+            this.$loadingImage.onload = null
+            this.$loadingImage.src = ''
+          }
+          this.$loadingImage = new Image()
+          this.$loadingImage.src = newUrl
+          this.$loadingImage.onload = () => {
+            this.pageUrl = newUrl
+            this.$loadingImage = null
+          }
         }
       }
     }

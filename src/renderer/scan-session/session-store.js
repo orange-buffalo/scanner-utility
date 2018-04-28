@@ -30,7 +30,7 @@ function createNewJpgFile() {
 }
 
 function updatePageUrl(page) {
-  page.url = `file:///${page.fileName}?nocache=${new Date().getMilliseconds()}`
+  page.url = `file:///${page.fileName}?nocache=${new Date().getTime()}`
 }
 
 function updatePage(page, percentLoaded) {
