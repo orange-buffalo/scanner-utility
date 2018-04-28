@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import log from 'electron-log'
 import {Status} from './scanner-api'
-import {eSclScannerProvider} from './eSCL/eSclScannerProvider'
+import {eSclScannerProvider} from './escl/escl-scanner-provider'
 
 let scannerNextId = 42
 
@@ -104,7 +104,7 @@ export let scannersStore = {
         this.scannerProviders.push(new eSclScannerProvider(callbacks))
 
         if (process.env.NODE_ENV === 'development') {
-          let DevScannerProvider = require('./dev/DevScannerProvider').DevScannerProvider
+          let DevScannerProvider = require('./dev/dev-scanner-provider').DevScannerProvider
           this.scannerProviders.push(new DevScannerProvider(callbacks))
         }
 

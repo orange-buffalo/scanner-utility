@@ -29,7 +29,7 @@ export class eSclScannerProvider extends ScannerProvider {
         return
       }
 
-      if (this.scanners.find(scanner => scanner.host == service.host)) {
+      if (Object.getOwnPropertyNames(this.scanners).find(scannerId => this.scanners[scannerId].host == service.host)) {
         log.info('already registered %s', service.host)
         return
       }
