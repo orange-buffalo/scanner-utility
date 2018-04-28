@@ -1,4 +1,4 @@
-import {app, BrowserWindow, dialog, ipcMain} from 'electron'
+import {app, BrowserWindow, dialog, ipcMain, screen} from 'electron'
 import log from 'electron-log'
 
 /**
@@ -15,17 +15,25 @@ const winURL = process.env.NODE_ENV === 'development'
     : `file://${__dirname}/index.html`
 
 function createWindow() {
+  const screenHeight = screen.getPrimaryDisplay().workAreaSize.height
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
-    useContentSize: true,
-    width: 1000,
+    height: screenHeight * 0.9,
+    width: screenHeight * 0.8,
     webPreferences: {
       webSecurity: false,
       experimentalFeatures: true
-    }
+    },
+    show: false,
+    center: true
+  })
+
+  mainWindow.setMenu(null)
+
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.show()
   })
 
   mainWindow.loadURL(winURL)
