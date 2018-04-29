@@ -1,10 +1,12 @@
 <template>
-  <div class="content grid-3-middle-center">
+  <div class="content grid-middle-center">
     <div class="col">
       <fade-transition group tag="div">
-        <scanner-button v-for="scanner in scanners"
-                        :key="scanner.id"
-                        :scanner-id="scanner.id"/>
+        <div class="button-container"
+             v-for="scanner in scanners"
+             :key="scanner.id">
+          <scanner-button :scanner-id="scanner.id"/>
+        </div>
       </fade-transition>
 
       <div class="searching-label">
@@ -67,6 +69,24 @@
     min-height: 100%;
     overflow-y: auto;
     padding-top: 30px;
+
+    .button-container {
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+
+      @media (min-width: 500px) {
+        width: 70%;
+      }
+
+      @media (min-width: 800px) {
+        width: 450px;
+      }
+
+      @media (min-width: 1500px) {
+        width: 600px;
+      }
+    }
   }
 
   .searching-label {
