@@ -48,9 +48,9 @@
     }
 
     &.disabled {
-      &:hover {
-        background-color: $bg-color;
-      }
+      background-color: $bg-color;
+      border-color: lighten($bg-color, 20);
+      color: lighten($bg-color, 20);
     }
 
     .fa-icon {

@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <div class="col-6">
+      <div class="buttons-panel col-6">
         <simple-button class="scan-button"
                        :disabled="scanner.isScanning"
                        @click="onStartScanning">
@@ -151,6 +151,7 @@
 <style lang="scss" scoped>
 
   @import "../styles/var";
+  @import "../styles/scanner-utility";
 
   $carousel-height: 200px;
 
@@ -183,8 +184,26 @@
       float: left;
     }
 
-    .scan-button {
+    .buttons-panel {
+      @extend .text-right;
+      padding-right: 20px;
 
+      .scan-button {
+        color: white;
+        background-color: darken($accent-color, 5);
+        border-color: $accent-color;
+
+        &:hover {
+          background-color: $accent-color;
+          border-color: lighten($accent-color, 5);
+        }
+
+        &.disabled {
+          background-color: $bg-color;
+          border-color: lighten($bg-color, 20);
+          color: lighten($bg-color, 20);
+        }
+      }
     }
   }
 
