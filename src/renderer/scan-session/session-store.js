@@ -250,6 +250,8 @@ let sessionStore = {
 
         fs.unlinkSync(page.fileName)
       })
+
+      context.state.pages = []
     }
   }
 }

@@ -2,19 +2,20 @@
   <div class="page-container grid-middle-noGutter-noBottom">
     <progress-bar class="progress-bar"
                   v-if="page && !page.ready"
-                  :percent="page.percentLoaded">
+                  :percent="page.percentLoaded"
+                  color="#86C232">
     </progress-bar>
 
     <div class="col">
       <fade-transition mode="out-in">
         <div v-if="!page"
              :key="'welcomeMessage'"
-             class="page-message">Click 'Scan' to start scanning
+             class="page-message">click 'Scan' to start rolling
         </div>
 
         <div v-if="page && !page.hasData"
              :key="'connectingMessage'"
-             class="page-message">Making the scanner work hard..
+             class="page-message">we are scanning.. and you don't think of purple hippos
         </div>
 
         <img :src="pageUrl"
@@ -102,12 +103,14 @@
     height: 100%;
     box-sizing: border-box;
     text-align: center;
-    background-color: #494949;
+    background-color: #474b4f;
     position: relative;
 
     .page-message {
       font-size: 200%;
-      color: fade_out($txt-color, 0.7);
+      color: fade_out($txt-color, 0.4);
+      width: 70%;
+      margin: auto;
     }
 
     .progress-bar {

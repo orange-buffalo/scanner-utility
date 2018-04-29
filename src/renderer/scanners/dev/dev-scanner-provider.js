@@ -2,6 +2,11 @@ import {ScannerProvider, Status} from '../scanner-api'
 import fs from 'fs'
 import request from 'request'
 import progress from 'request-progress'
+import log from 'electron-log'
+
+window.devScannerProviderHooker = {
+  skipCallbacks: false
+}
 
 export class DevScannerProvider extends ScannerProvider {
 
@@ -64,6 +69,10 @@ export class DevScannerProvider extends ScannerProvider {
   }
 
   scanPage(scannerId, config, onComplete, onProgress, onFailure) {
+    window.devScannerProviderHooker.onProgressCallback = onProgress
+    window.devScannerProviderHooker.onFailureCallback = onFailure
+    window.devScannerProviderHooker.onCompleteCallback = onComplete
+
     progress(request({
       uri: 'https://picsum.photos/1500/2064/?random',
       timeout: 10000
@@ -73,15 +82,30 @@ export class DevScannerProvider extends ScannerProvider {
       // lengthHeader: 'x-transfer-length'  // Length header to use, defaults to content-length
     })
         .on('progress', (state) => {
-          onProgress(state.percent * 100)
+          if (window.devScannerProviderHooker.skipCallbacks) {
+            log.info('skipping on progress callback')
+          }
+          else {
+            onProgress(state.percent * 100)
+          }
         })
 
         .on('error', (err) => {
-          onFailure(err)
+          if (window.devScannerProviderHooker.skipCallbacks) {
+            log.info('skipping on failure callback')
+          }
+          else {
+            onFailure(err)
+          }
         })
 
         .on('end', () => {
-          onComplete()
+          if (window.devScannerProviderHooker.skipCallbacks) {
+            log.info('skipping on complete callback')
+          }
+          else {
+            onComplete()
+          }
         })
 
         .pipe(fs.createWriteStream(config.fileName))

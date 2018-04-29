@@ -9,7 +9,7 @@
   export default {
     name: 'progress-bar',
 
-    props: ['percent'],
+    props: ['percent', 'color'],
 
     computed: {
       progressBarClass: function () {
@@ -17,9 +17,13 @@
       },
 
       indicatorStyle: function () {
-        return {
+        let style = {
           width: this.percent ? `${this.percent}%` : '100%'
         }
+        if (this.color) {
+          style["background-color"] = this.color
+        }
+        return style
       }
     }
   }
