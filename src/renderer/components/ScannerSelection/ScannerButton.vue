@@ -6,7 +6,7 @@
       <span class="name">{{scanner.name}}</span><br/>
       <span class="address">at {{scanner.address}}</span>
       <span class="status" v-if="!scanner.isReady">
-        <icon name="spinner" spin v-if="scanner.isPending"></icon>
+        <icon name="spinner" width="10px" height="10px" spin v-if="scanner.isPending"></icon>
         {{status}}
       </span>
     </div>
@@ -72,18 +72,24 @@
   @import "../../styles/var";
 
   .scanner-button {
-    border: 1px solid;
-    border-radius: 3px;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
     padding: 15px;
     transition: all 0.3s;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     display: inline-block;
     width: 100%;
+    border-color: transparent;
 
     &.ready {
       &:hover {
         background: lighten($bg-color, 5);
+        border-color: $accent-color;
+        color: $accent-color;
+        .address {
+          color: lighten($accent-color, 20);
+        }
       }
     }
 
@@ -101,8 +107,8 @@
     .status {
       display: inline-block;
       width: 100%;
-      text-align: right;
       margin-top: 5px;
+      font-size: 60%;
     }
 
     &.failed {

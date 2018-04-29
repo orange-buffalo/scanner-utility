@@ -1,6 +1,8 @@
-$bg-color: #202525;
+$bg-color: #222629;
+$bg-color: #272727;
 
-$txt-color: #89A19D;
+$txt-color: fade_out(white, 0.23);
+$accent-color: #86C232;
 $txt-hover-color: lighten($txt-color, 30);
 
 $error-txt-color: #b16f6f;
