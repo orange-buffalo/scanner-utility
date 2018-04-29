@@ -2,16 +2,18 @@
   <div class="content grid-middle-center">
     <div class="col">
       <fade-transition group tag="div">
-        <div class="button-container"
+        <div class="child-container"
              v-for="scanner in scanners"
              :key="scanner.id">
           <scanner-button :scanner-id="scanner.id"/>
         </div>
       </fade-transition>
 
-      <div class="searching-label">
-        <progress-bar></progress-bar>
-        <span>searching for scanners...</span>
+      <div class="child-container">
+        <div class="searching-label">
+          <progress-bar></progress-bar>
+          <span>searching for scanners...</span>
+        </div>
       </div>
     </div>
   </div>
@@ -65,12 +67,14 @@
 </script>
 
 <style lang="scss" scoped>
+  @import "../styles/var";
+
   .content {
     min-height: 100%;
     overflow-y: auto;
     padding-top: 30px;
 
-    .button-container {
+    .child-container {
       width: 90%;
       margin-left: auto;
       margin-right: auto;
@@ -87,16 +91,18 @@
         width: 600px;
       }
     }
-  }
 
-  .searching-label {
-    font-size: 70%;
-    text-align: center;
-    padding: 5px 20%;
+    .searching-label {
+      font-size: 70%;
+      text-align: center;
+      padding: 5px 20%;
+      box-sizing: border-box;
+      color: fade_out($txt-color, 0.3);
 
-    span {
-      display: inline-block;
-      padding-top: 5px;
+      span {
+        display: inline-block;
+        padding-top: 5px;
+      }
     }
   }
 </style>
