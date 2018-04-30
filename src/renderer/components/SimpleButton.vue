@@ -39,7 +39,7 @@
     position: relative;
     line-height: 1;
     padding: 10px 15px 10px 45px;
-    border-radius: 2px;
+    border-radius: $border-radius;
     border: 1px solid darken($txt-color, 20);
     transition: all 0.3s;
 

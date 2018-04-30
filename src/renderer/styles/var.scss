@@ -1,8 +1,15 @@
-$bg-color: #222629;
 $bg-color: #272727;
 
 $txt-color: fade_out(white, 0.23);
-$accent-color: #86C232;
 $txt-hover-color: lighten($txt-color, 30);
 
+$accent-color: #86C232;
+
 $error-txt-color: #b16f6f;
+
+$overlay-txt-color: #4C5859;
+$overlay-bg-color: #F5F7F7;
+$overlay-border-color: fade_out($overlay-txt-color, 0.9);
+$overlay-bg-active-color: darken($overlay-bg-color, 2);
+
+$border-radius: 1px;
