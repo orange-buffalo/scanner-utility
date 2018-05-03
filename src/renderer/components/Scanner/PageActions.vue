@@ -10,36 +10,54 @@
         &nbsp;
       </simple-button>
     </div>
-    <div slot="content" v-if="activePage && activePage.ready">
-      <span>{{sessionInfo.pagesCount}} pages ({{sessionInfo.totalSize}} raw)</span>
-      <span v-if="pdfFileName"> saved to {{pdfFileName}}</span>
-      <br/>
-      <span v-if="sessionInfo.allChangesSaved">All the changes are saved</span>
-      <span v-if="!sessionInfo.allChangesSaved">Unsaved changes are pending.</span>
-      <br/>
+    <div slot="content"
+         v-if="activePage && activePage.ready"
+         class="popover-body">
 
-      <a href="#" @click="savePdf" v-if="pdfFileName">Save</a>
+      <div class="content-tile session-info">
+        <span>{{sessionInfo.pagesCount}} page(s) ({{sessionInfo.totalSize}} raw)</span>
+        <span v-if="pdfFileName"> saved to {{pdfFileName}}</span>
+        <br/>
+        <span v-if="sessionInfo.allChangesSaved">All the changes are saved</span>
+        <span class="danger-text" v-if="!sessionInfo.allChangesSaved">Unsaved changes are pending</span>
+      </div>
 
-      <a href="#" @click="saveAsPdf">Save As</a>
+      <div class="content-tile button"
+           @click="savePdf"
+           v-if="pdfFileName">Save
+      </div>
 
-      <a href="#"
-         @click="rotatePage(activePageId)">Rotate</a>
+      <div class="content-tile button"
+           @click="saveAsPdf">Save As
+      </div>
 
-      <a href="#"
-         @click="movePageBackward(activePageId)"
-         v-if="isMoveBackwardVisible">Move to the beginning</a>
+      <div class="content-tile button"
+           @click="rotatePage(activePageId)">Rotate
+      </div>
 
-      <a href="#"
-         @click="movePageForward(activePageId)"
-         v-if="isMoveForwardVisible">Move to the end</a>
+      <div class="content-tile button"
+           @click="movePageBackward(activePageId)"
+           v-if="isMoveBackwardVisible">Move to the beginning
+      </div>
 
-      <a href="#"
-         @click="showDeleteConfirmation = true"
-         v-if="!showDeleteConfirmation">Delete</a>
+      <div class="content-tile button"
+           @click="movePageForward(activePageId)"
+           v-if="isMoveForwardVisible">Move to the end
+      </div>
 
-      <a href="#"
-         @click="deleteCurrentPage"
-         v-if="showDeleteConfirmation">Confirm</a>
+      <fade-transition mode="out-in">
+        <div class="content-tile button"
+             :key="'delete-button'"
+             @click="showDeleteConfirmation = true"
+             v-if="!showDeleteConfirmation">Delete
+        </div>
+
+        <div class="content-tile danger-button"
+             @click="deleteCurrentPage"
+             :key="'confirm-button'"
+             v-if="showDeleteConfirmation">Confirm
+        </div>
+      </fade-transition>
 
     </div>
   </popover>
@@ -50,12 +68,13 @@
   import Popover from './Popover'
   import {mapGetters, mapActions, mapState} from 'vuex'
   import Noty from 'noty'
+  import {FadeTransition} from 'vue2-transitions'
 
   export default {
     name: 'scanner',
 
     components: {
-      SimpleButton, Popover
+      SimpleButton, Popover, FadeTransition
     },
 
     props: ['activePageId'],
@@ -153,12 +172,43 @@
     margin-left: 10px;
   }
 
-  .popover {
-    .popover-container {
-      left: 35px;
-      background: white;
-      padding: 5px;
-      top: 45px;
+  .popover-body {
+    .content-tile {
+      border-bottom: 1px solid $overlay-border-color;
+      padding: 10px;
+      transition: all 0.3s;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+
+    .session-info {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .danger-text {
+      color: $danger-color;
+    }
+
+    .button {
+      text-align: center;
+
+      &:hover {
+        background-color: $overlay-bg-active-color;
+      }
+    }
+
+    .danger-button {
+      @extend .button;
+
+      background-color: $danger-color;
+      color: white;
+      
+      &:hover {
+        background-color: lighten($danger-color, 10);
+      }
     }
   }
 </style>

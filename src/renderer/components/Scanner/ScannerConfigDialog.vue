@@ -113,7 +113,7 @@
   @import "../../styles/var";
 
   .v--modal.container {
-    box-shadow: none;
+    box-shadow: 0 0 10px 0 rgba(27, 33, 58, 0.4);
     color: $overlay-txt-color;
     border-radius: $border-radius;
     overflow: visible;

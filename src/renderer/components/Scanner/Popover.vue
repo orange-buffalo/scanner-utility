@@ -5,13 +5,16 @@
       </slot>
     </div>
 
-    <div class="popover-container" :id="id" v-if="isOpen" v-on:click="onPopoverContentClick">
-      <slot name="content"></slot>
-    </div>
+    <fade-transition>
+      <div class="popover-container" :id="id" v-if="isOpen" v-on:click="onPopoverContentClick">
+        <slot name="content"></slot>
+      </div>
+    </fade-transition>
   </div>
 </template>
 
 <script>
+  import {FadeTransition} from 'vue2-transitions'
 
   export default {
     props: {
@@ -26,6 +29,8 @@
         required: false
       }
     },
+
+    components: {FadeTransition},
 
     data: function () {
       return {
@@ -85,6 +90,7 @@
 </script>
 
 <style lang="scss">
+  @import "../../styles/var";
 
   .popover {
     position: relative;
@@ -93,7 +99,17 @@
     &-container {
       position: absolute;
       z-index: 1000;
-      left: 0;
+      right: 0;
+      background: $overlay-bg-color;
+      border-color: $overlay-border-color;
+      border-radius: $border-radius;
+      top: 45px;
+      color: $overlay-txt-color;
+      overflow: hidden;
+      box-sizing: border-box;
+      width: 300px;
+      text-align: left;
+      box-shadow: 0 0 10px 0 rgba(27, 33, 58, 0.4);
     }
   }
 </style>
