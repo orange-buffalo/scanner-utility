@@ -1,12 +1,12 @@
 <template>
   <div class="wrapper" v-if="scanner">
     <div class="header grid-noGutter-noBottom-middle">
-      <div class="col-6">
+      <div class="info-panel col-6">
         <div class="back-button" @click="back">
           <icon name="chevron-left" scale="2"/>
         </div>
 
-        <div class="scanner-info">
+        <div class="scanner-info overflow-hidden">
           <scanner-info :scanner-id="scanner.id"
                         @config-change-requested="showConfigDialog"></scanner-info>
 
@@ -168,23 +168,29 @@
     height: 70px;
     right: 0;
 
-    .back-button {
-      display: inline-block;
-      float: left;
-      padding: 0 5px 0 5px;
-      transition: all 0.3s;
+    .info-panel {
+      @extend .no-wrap;
+      @extend .overflow-hidden;
+      padding-top: 15px;
 
-      &:hover {
-        color: $txt-hover-color;
+      .back-button {
+        display: inline-block;
+        float: left;
+        padding: 0 5px 0 5px;
+        transition: all 0.3s;
+
+        &:hover {
+          color: $txt-hover-color;
+        }
+      }
+
+      .scanner-info {
+        display: inline-block;
       }
     }
 
-    .scanner-info {
-      display: inline-block;
-      float: left;
-    }
-
     .buttons-panel {
+      @extend .no-wrap;
       @extend .text-right;
       padding-right: 20px;
 
