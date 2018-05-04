@@ -50,7 +50,8 @@
     },
     "linux": {
       "icon": "build/icons"
-    }
+    },
+    "asar": false
   },
   "dependencies": {
     "axios": "^0.18.0",
