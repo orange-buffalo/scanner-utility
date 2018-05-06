@@ -78,7 +78,7 @@
 
     watch: {
       'page.url': function (newUrl) {
-        if (this.page.hasData) {
+        if (this.page && this.page.hasData) {
           if (this.$loadingImage) {
             this.$loadingImage.onload = null
             this.$loadingImage.src = ''

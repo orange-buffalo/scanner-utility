@@ -252,6 +252,8 @@ let sessionStore = {
       })
 
       context.state.pages = []
+      context.state.allChangesSaved = true
+      context.state.pdfFileName = null
     }
   }
 }

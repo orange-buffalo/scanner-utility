@@ -49,13 +49,27 @@
         <div class="content-tile button"
              :key="'delete-button'"
              @click="showDeleteConfirmation = true"
-             v-if="!showDeleteConfirmation">Delete
+             v-if="!showDeleteConfirmation">Delete Page
         </div>
 
         <div class="content-tile danger-button"
              @click="deleteCurrentPage"
              :key="'confirm-button'"
              v-if="showDeleteConfirmation">Confirm
+        </div>
+      </fade-transition>
+
+      <fade-transition mode="out-in">
+        <div class="content-tile button"
+             :key="'delete-button'"
+             @click="showClearConfirmation = true"
+             v-if="!showClearConfirmation">Clear Session
+        </div>
+
+        <div class="content-tile danger-button"
+             @click="confirmClearSession"
+             :key="'confirm-button'"
+             v-if="showClearConfirmation">Confirm
         </div>
       </fade-transition>
 
@@ -81,7 +95,8 @@
 
     data: function () {
       return {
-        showDeleteConfirmation: false
+        showDeleteConfirmation: false,
+        showClearConfirmation: false
       }
     },
 
@@ -92,7 +107,8 @@
         deletePage: 'session/deletePage',
         rotatePage: 'session/rotatePage',
         movePageBackward: 'session/movePageBackward',
-        movePageForward: 'session/movePageForward'
+        movePageForward: 'session/movePageForward',
+        clearSession: 'session/clear'
       }),
 
       openActionsPopover: function (e) {
@@ -126,10 +142,16 @@
 
       resetState: function () {
         this.showDeleteConfirmation = false
+        this.showClearConfirmation = false
       },
 
       deleteCurrentPage: function () {
         this.deletePage(this.activePageId)
+        this.$refs.actionsPopover.close()
+      },
+
+      confirmClearSession: function () {
+        this.clearSession()
         this.$refs.actionsPopover.close()
       }
     },
